@@ -22,11 +22,15 @@
 //! - [`platform`] — Platform trait 及其关联常量/类型
 //! - [`state`] — MinUi 全局状态机
 //! - [`paths`] — SD 卡路径常量（从 Platform 派生）
+//! - [`utils`] — 工具函数（字符串匹配、文件 I/O、显示名提取）
+//! - [`scan`] — 文件系统扫描（目录遍历、最近游戏、收藏、多碟）
 
 pub mod types;
 pub mod platform;
 pub mod state;
 pub mod paths;
+pub mod utils;
+pub mod scan;
 
 // 重导出最常用的类型
 pub use types::{Entry, EntryType, Directory, Recent, Button, PadContext, Color};
