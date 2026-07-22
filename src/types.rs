@@ -236,14 +236,17 @@ impl Button {
         Self(self.0 | other.0)
     }
 
+    /// 添加按钮到位掩码（按位或）
     pub fn insert(&mut self, other: Self) {
         self.0 |= other.0;
     }
 
+    /// 从位掩码中移除按钮（按位与非）
     pub fn remove(&mut self, other: Self) {
         self.0 &= !other.0;
     }
 
+    /// 是否没有按钮被按下
     pub fn is_empty(self) -> bool {
         self.0 == 0
     }
@@ -262,7 +265,9 @@ impl Button {
 /// 摇杆轴状态 —— 对应 C 中的 `typedef struct PAD_Axis`
 #[derive(Debug, Clone, Copy, Default)]
 pub struct Axis {
+    /// 水平轴值（-32768 到 32767，0 为居中）
     pub x: i32,
+    /// 垂直轴值（-32768 到 32767，0 为居中）
     pub y: i32,
 }
 
@@ -339,10 +344,23 @@ impl PadContext {
 /// - LightGray: (204, 204, 204) — 亮色 UI 元素
 /// - Gray:    (153, 153, 153) — 按钮文字
 /// - DarkGray: (38, 38, 38)    — 暗色 UI 元素 / 副文字
+///
+/// # 示例
+///
+/// ```
+/// use minui::Color;
+/// let white = Color::WHITE;
+/// assert_eq!(white.r, 255);
+/// assert_eq!(white.g, 255);
+/// assert_eq!(white.b, 255);
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Color {
+    /// 红色分量 (0-255)
     pub r: u8,
+    /// 绿色分量 (0-255)
     pub g: u8,
+    /// 蓝色分量 (0-255)
     pub b: u8,
 }
 

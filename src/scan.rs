@@ -36,51 +36,50 @@ pub const MAX_RECENTS: usize = 24;
 
 /// ROM 目录路径 —— `{SDCARD}/Roms`
 ///
-/// # 调用者
+/// ### 调用者
 /// `get_root`, `has_roms`, `get_entries`, `is_console_dir`, `load_recents`
-fn roms_path(sdcard: &str) -> String {
+pub fn roms_path(sdcard: &str) -> String {
     format!("{}/Roms", sdcard)
 }
 
 /// 最近游戏伪目录路径 —— `{SDCARD}/Recently Played`
 /// 注意：这不是一个真实的文件系统目录，而是由 `get_recents_from_list` 动态生成的
 ///
-/// # 调用者
+/// ### 调用者
 /// `get_root`（判断是否显示这一项）, `make_directory`（识别伪目录）
-fn faux_recent_path(sdcard: &str) -> String {
+pub fn faux_recent_path(sdcard: &str) -> String {
     format!("{}/Recently Played", sdcard)
 }
 
 /// 收藏夹目录路径 —— `{SDCARD}/Collections`
 ///
-/// # 调用者
+/// ### 调用者
 /// `get_root`（判断是否显示/提升 Collections）, `make_directory`（识别伪目录）
-fn collections_path(sdcard: &str) -> String {
+pub fn collections_path(sdcard: &str) -> String {
     format!("{}/Collections", sdcard)
 }
 
 /// 系统 Pak 目录路径 —— `{SDCARD}/.system/{PLATFORM}/paks`
 ///
-/// # 调用者
-/// 被 `has_emu` 用于查找系统内置的模拟器 Pak（路径1）
+/// 被 `has_emu` 用于查找系统内置的模拟器 Pak。
 #[allow(dead_code)]
-fn paks_path(sdcard: &str, platform: &str) -> String {
+pub fn paks_path(sdcard: &str, platform: &str) -> String {
     format!("{}/.system/{}/paks", sdcard, platform)
 }
 
 /// 共享用户数据目录路径 —— `{SDCARD}/.userdata/shared`
 ///
-/// # 调用者
+/// ### 调用者
 /// `recent_file_path`（最近游戏文件在此目录下）, `paths::slot_path`（存档状态在此目录下）
-fn shared_userdata_path(sdcard: &str) -> String {
+pub fn shared_userdata_path(sdcard: &str) -> String {
     format!("{}/.userdata/shared", sdcard)
 }
 
 /// 最近游戏记录文件路径 —— `{SHARED_USERDATA}/.minui/recent.txt`
 ///
-/// # 调用者
+/// ### 调用者
 /// `load_recents` → 启动时从此文件恢复最近游戏历史
-fn recent_file_path(sdcard: &str) -> String {
+pub fn recent_file_path(sdcard: &str) -> String {
     format!("{}/.minui/recent.txt", shared_userdata_path(sdcard))
 }
 
@@ -92,7 +91,7 @@ fn recent_file_path(sdcard: &str) -> String {
 ///
 /// 自动调用 `get_display_name` 提取显示名。
 ///
-/// # 调用者
+/// ### 调用者
 /// `scan_dir`, `get_root`, `get_recents_from_list`, `get_collection`, `get_discs`
 /// —— 所有需要构造 Entry 的函数都经过这个工厂函数
 fn create_entry(path: &str, entry_type: EntryType) -> Entry {
@@ -163,7 +162,7 @@ pub fn has_emu(
 ///
 /// 返回 `Some(cue_path)` 如果找到，否则 `None`
 ///
-/// # 调用者
+/// ### 调用者
 /// `open_directory`（未来） → 用户进入 PS1 游戏目录时，如果发现 cue 文件且 `auto_launch=true`，
 /// 则跳过目录浏览，直接启动该 cue 文件对应的游戏。
 pub fn find_cue(dir_path: &str) -> Option<String> {
@@ -227,7 +226,7 @@ pub fn find_m3u(rom_path: &str) -> Option<String> {
 /// 1. 有对应的模拟器 Pak
 /// 2. 目录下至少有一个非隐藏文件
 ///
-/// # 调用者
+/// ### 调用者
 /// `get_root` → 遍历 ROMS 目录时决定哪些游戏主机出现在主菜单中。
 /// 无 ROM 或无模拟器的目录不出现在用户面前。
 pub fn has_roms(
@@ -251,7 +250,7 @@ pub fn has_roms(
 
 /// 扫描目录中是否存在非隐藏条目
 ///
-/// # 调用者
+/// ### 调用者
 /// `has_roms` → 双重检查的第二关：模拟器存在后，确认目录下确实有 ROM 文件（非空）
 /// `get_root` → 检查 Collections 目录是否有内容，决定是否显示/提升 Collections
 fn scan_dir_has_visible(path: &str) -> bool {
@@ -272,9 +271,9 @@ fn scan_dir_has_visible(path: &str) -> bool {
 
 /// 判断一个路径是否是顶层游戏主机目录（父目录是 ROMS_PATH）
 ///
-/// # 调用者
+/// ### 调用者
 /// `get_entries` → 决定是否执行归类（collation）逻辑：只有顶层主机目录才需要合并同系列变体
-fn is_console_dir(path: &str, sdcard: &str) -> bool {
+pub fn is_console_dir(path: &str, sdcard: &str) -> bool {
     if let Some(parent) = parent_dir(path) {
         return parent == roms_path(sdcard);
     }
@@ -348,7 +347,7 @@ pub fn scan_dir(path: &str, is_collection: bool) -> Vec<Entry> {
 ///
 /// 如果不是顶层目录，直接 `scan_dir`。
 ///
-/// # 调用者
+/// ### 调用者
 /// `make_directory` → 当用户进入一个目录时调用。`make_directory` 判断路径类型后委托给此函数。
 /// 此函数是用户看到 ROM 列表的**核心数据源**。
 pub fn get_entries(path: &str, sdcard: &str) -> Vec<Entry> {
@@ -403,10 +402,10 @@ pub fn get_entries(path: &str, sdcard: &str) -> Vec<Entry> {
 /// "Game Boy (GB)" → "Game Boy ("
 /// 保留开头括号是为了避免 "Game Boy" 同时匹配 "Game Boy Advance" 和 "Game Boy Color"
 ///
-/// # 调用者
+/// ### 调用者
 /// `get_entries` → 在归类模式下，用提取的前缀去匹配 ROMS 下的其他目录，
 /// 把同系列不同变体的目录合并到同一个列表中
-fn extract_collate_prefix(path: &str) -> String {
+pub fn extract_collate_prefix(path: &str) -> String {
     // 找到最后一个 '('
     if let Some(paren_pos) = path.rfind('(') {
         // 保留到 '(' 之后一个字符，即 '(' 本身也被保留
@@ -440,7 +439,7 @@ fn extract_collate_prefix(path: &str) -> String {
 ///
 /// 如果没有任何可见的游戏系统，Collections 会被直接提升到根目录。
 ///
-/// # 调用者
+/// ### 调用者
 /// `Menu_init`（未来） → 启动时调用一次，构建用户看到的主屏幕。
 /// 这是整个 launcher 的**入口数据源**。
 pub fn get_root(
@@ -548,7 +547,7 @@ pub fn get_root(
 /// 从 `recents`（最近游戏数据）转换为 `Entry` 列表（用于 UI 显示）。
 /// 跳过不可用的条目（模拟器不在当前设备上）。
 ///
-/// # 调用者
+/// ### 调用者
 /// `make_directory` → 用户进入 "Recently Played" 伪目录时，将 `MinUi.recents` 转化为可显示的 Entry 列表
 pub fn get_recents_from_list(
     recents: &[Recent],
@@ -578,7 +577,7 @@ pub fn get_recents_from_list(
 /// 读取 `.txt` 文件，每行是一个相对路径（相对于 SDCARD_PATH）。
 /// 检查路径是否存在，创建对应的 Entry。
 ///
-/// # 调用者
+/// ### 调用者
 /// `make_directory` → 用户进入某个 Collection 文件时（`.txt` 伪装成目录），读取该文件内容并构建条目列表
 pub fn get_collection(collection_path: &str, sdcard: &str) -> Vec<Entry> {
     let mut entries = Vec::new();
@@ -614,7 +613,7 @@ pub fn get_collection(collection_path: &str, sdcard: &str) -> Vec<Entry> {
 /// 读取 `.m3u` 文件，每行是一个碟的路径（相对于 m3u 文件所在目录）。
 /// 为每个存在的碟创建名为 "Disc N" 的 Entry。
 ///
-/// # 调用者
+/// ### 调用者
 /// `make_directory` → 用户进入一个 m3u 文件时（视为多碟游戏的子目录），展示所有碟供选择
 pub fn get_discs(m3u_path: &str) -> Vec<Entry> {
     let mut entries = Vec::new();
@@ -653,7 +652,7 @@ pub fn get_discs(m3u_path: &str) -> Vec<Entry> {
 ///
 /// 解析 m3u 文件，返回第一个有效碟的完整路径。
 ///
-/// # 调用者
+/// ### 调用者
 /// `open_rom`（未来） → 用户选择 m3u 文件本身时，获取第一张碟作为默认启动目标
 /// `open_directory`（未来） → 目录自动启动时发现 m3u，获取第一张碟
 pub fn get_first_disc(m3u_path: &str) -> Option<String> {
@@ -680,23 +679,72 @@ pub fn get_first_disc(m3u_path: &str) -> Option<String> {
 // Directory 构造与索引
 // ============================================================================
 
-/// 创建 Directory 并建立字母索引 —— 对应 C 中的 `Directory_new()` + `Directory_index()`
+// 创建 Directory 并建立字母索引 —— 对应 C 中的 `Directory_new()` + `Directory_index()`
+//
+// ## 字母索引（alphas）
+//
+// 字母索引数组使得 L1/R1 可以快速跳转到不同首字母的条目。
+// `alphas[i]` 存储的是第 i 个字母分组在 entries 中的起始索引。
+//
+// ## 同名条目处理
+//
+// 当两个相邻条目有完全相同的显示名时：
+// - 如果文件名也相同 → 构造 `"Name (EMU_TAG)"` 作为 unique
+// - 如果文件名不同 → 用各自的文件名作为 unique
+//
+// ## map.txt 映射
+//
+// 如果目录下有 `map.txt` 文件，会在索引前应用名称映射。
+// 映射后的条目如果 `hide()` 返回 true，会被过滤掉。
+
+// ============================================================================
+// 路径分派：根据路径类型选择正确的扫描函数
+// ============================================================================
+
+/// 根据路径类型获取条目列表 —— 对应 C 中 `Directory_new()` 的分派逻辑
 ///
-/// ## 字母索引（alphas）
+/// 这是 `open_directory()` 使用的入口函数，根据路径类型选择正确的数据源。
 ///
-/// 字母索引数组使得 L1/R1 可以快速跳转到不同首字母的条目。
-/// `alphas[i]` 存储的是第 i 个字母分组在 entries 中的起始索引。
+/// | 路径匹配 | 调用 | 说明 |
+/// |----------|------|------|
+/// | `== SDCARD_PATH` | `get_root()` | 根目录：游戏主机列表 + 最近 + 收藏 + 工具 |
+/// | `== FAUX_RECENT_PATH` | `get_recents_from_list()` | 最近游戏伪目录 |
+/// | 在 Collections 下的 `.txt` | `get_collection()` | 收藏文件内容 |
+/// | `.m3u` 结尾 | `get_discs()` | 多碟游戏碟片列表 |
+/// | 其他 | `get_entries()` | 普通目录（含归类逻辑） |
+pub fn get_entries_for_path(
+    path: &str,
+    sdcard: &str,
+    platform_tag: &str,
+    paks: &str,
+    recents: &[Recent],
+    simple_mode: bool,
+) -> Vec<Entry> {
+    let faux = faux_recent_path(sdcard);
+    let col = collections_path(sdcard);
+
+    if exact_match(path, sdcard) {
+        let (has_recents, has_collections) = (!recents.is_empty(), path_exists(&col) && scan_dir_has_visible(&col));
+        return get_root(sdcard, platform_tag, paks, has_recents, has_collections, simple_mode);
+    }
+
+    if exact_match(path, &faux) {
+        return get_recents_from_list(recents, sdcard);
+    }
+
+    if !exact_match(path, &col) && prefix_match(&col, path) && suffix_match(".txt", path) {
+        return get_collection(path, sdcard);
+    }
+
+    if is_m3u(path) {
+        return get_discs(path);
+    }
+
+    get_entries(path, sdcard)
+}
+
+/// ## map.txt 映射（续）
 ///
-/// ## 同名条目处理
-///
-/// 当两个相邻条目有完全相同的显示名时：
-/// - 如果文件名也相同 → 构造 `"Name (EMU_TAG)"` 作为 unique
-/// - 如果文件名不同 → 用各自的文件名作为 unique
-///
-/// ## map.txt 映射
-///
-/// 如果目录下有 `map.txt` 文件，会在索引前应用名称映射。
-/// 映射后的条目如果 `hide()` 返回 true，会被过滤掉。
 ///
 /// ### 调用者
 ///
@@ -829,7 +877,7 @@ pub fn make_directory(
 ///
 /// 格式：`"DisplayName (EMU_TAG)"`
 ///
-/// # 调用者
+/// ### 调用者
 /// `fix_duplicate_names` → 两个同名且同文件名的条目（如相同主机不同标签的目录），
 /// 用 `(EMU_TAG)` 后缀区分
 fn make_unique_name(path: &str, _platform_tag: &str) -> String {
@@ -842,7 +890,7 @@ fn make_unique_name(path: &str, _platform_tag: &str) -> String {
 ///
 /// 例如："/sdcard/Roms/Game Boy (GB)" → "GB"
 ///
-/// # 调用者
+/// ### 调用者
 /// `make_unique_name` → 构造 `"Name (TAG)"` 格式的唯一名称时需要标签
 /// `load_recents` → 从最近游戏路径中快速提取标签以检查模拟器可用性
 fn extract_emu_tag_from_console_path(path: &str) -> String {
@@ -860,7 +908,7 @@ fn extract_emu_tag_from_console_path(path: &str) -> String {
 ///
 /// 当两个相邻条目排序后显示名相同时，根据文件名异同决定 unique 值。
 ///
-/// # 调用者
+/// ### 调用者
 /// `make_directory` → 条目排序后调用一次，确保所有同名条目都有区分信息
 fn fix_duplicate_names(
     entries: &mut [Entry],
@@ -903,7 +951,7 @@ fn fix_duplicate_names(
 ///
 /// 读取目录下的 `map.txt`，应用名称映射，过滤隐藏条目，重新排序。
 ///
-/// # 调用者
+/// ### 调用者
 /// `make_directory` → 构建 Directory 的第一阶段，在字母索引之前调用。
 /// 使得用户可以通过 map.txt 自定义 ROM 显示名，甚至隐藏某些条目。
 fn apply_directory_maps(entries: &mut Vec<Entry>, dir_path: &str, _sdcard: &str) {
@@ -926,7 +974,7 @@ fn apply_directory_maps(entries: &mut Vec<Entry>, dir_path: &str, _sdcard: &str)
 ///
 /// map.txt 格式：`原始文件名<TAB>别名`
 ///
-/// # 调用者
+/// ### 调用者
 /// `get_root` → 对游戏主机列表应用 ROMS/map.txt 的映射（例如 "Game Boy (GB)" → "Nintendo Game Boy"）
 /// `apply_directory_maps` → 对子目录内容应用 map.txt 的映射
 fn apply_name_map(entries: &mut [Entry], map_path: &str) {
@@ -977,7 +1025,7 @@ fn apply_name_map(entries: &mut [Entry], map_path: &str) {
 ///
 /// 对于多碟游戏（有 m3u），只保留最后一次使用的碟。
 ///
-/// # 调用者
+/// ### 调用者
 /// `Menu_init`（未来） → 启动时调用一次，从 `recent.txt` 恢复用户的最近游戏历史。
 /// 返回的 `has_any` 标志决定是否在主屏幕显示 "Recently Played" 条目。
 pub fn load_recents(

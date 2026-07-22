@@ -134,17 +134,27 @@ pub struct GfxRenderer {
     /// 模拟器核心输出的真实高度
     pub true_h: i32,
 
+    /// 源矩形 X 偏移（像素）
     pub src_x: i32,
+    /// 源矩形 Y 偏移（像素）
     pub src_y: i32,
+    /// 源矩形宽度（像素）
     pub src_w: i32,
+    /// 源矩形高度（像素）
     pub src_h: i32,
-    pub src_p: i32, // src pitch
+    /// 源每行字节数（pitch / stride）
+    pub src_p: i32,
 
+    /// 目标矩形 X 偏移（像素）
     pub dst_x: i32,
+    /// 目标矩形 Y 偏移（像素）
     pub dst_y: i32,
+    /// 目标矩形宽度（像素）
     pub dst_w: i32,
+    /// 目标矩形高度（像素）
     pub dst_h: i32,
-    pub dst_p: i32, // dst pitch
+    /// 目标每行字节数（pitch / stride）
+    pub dst_p: i32,
 }
 
 // SAFETY: GfxRenderer 包含原始指针，但平台实现保证它们的生命周期
@@ -157,7 +167,9 @@ unsafe impl Send for GfxRenderer {}
 /// 单帧立体声音频采样 —— 对应 C 中的 `typedef struct SND_Frame`
 #[derive(Debug, Clone, Copy, Default)]
 pub struct AudioFrame {
+    /// 左声道采样值
     pub left: i16,
+    /// 右声道采样值
     pub right: i16,
 }
 
@@ -322,17 +334,17 @@ pub trait Platform: Send + Sized {
     // ================================================================
 
     /// 是否有物理电源键
-    fn has_power_button() -> bool {
+    fn has_power_button(&self) -> bool {
         Self::KEY_POWER != NA
     }
 
     /// 是否有物理 MENU 键
-    fn has_menu_button() -> bool {
+    fn has_menu_button(&self) -> bool {
         Self::KEY_MENU != NA
     }
 
     /// 是否有独立的关机键（区别于电源键）
-    fn has_poweroff_button() -> bool {
+    fn has_poweroff_button(&self) -> bool {
         Self::KEY_POWER_OFF != NA
     }
 
@@ -522,7 +534,12 @@ pub trait Platform: Send + Sized {
     }
 
     /// 检查翻盖状态是否改变
-    fn lid_changed(&self, _state: &mut i32) -> bool {
+    ///
+    /// `state` 参数可选：传入 `Some(&mut val)` 会将当前翻盖状态（打开/合上）
+    /// 写入 val，传入 `None` 则仅检查状态是否改变而不读取状态值。
+    /// 对应 C 中 `PLAT_lidChanged(int* state)` — state 可以为 NULL。
+    fn lid_changed(&self, state: Option<&mut i32>) -> bool {
+        let _ = state;
         false
     }
 
@@ -560,17 +577,27 @@ pub mod test_platform {
     use super::*;
 
     /// 一个用于测试的假平台实现
+    ///
+    /// 所有操作在内存中完成，不访问真实硬件。
     pub struct TestPlatform {
+        /// 帧缓冲区数据（RGB565 格式，640×480×2 字节）
         pub fb: Vec<u8>,
+        /// 模拟的充电状态
         pub battery_charging: bool,
+        /// 模拟的电量（0/10/20/40/60/80/100）
         pub battery_level: u8,
+        /// 模拟的背光开关状态
         pub backlight_on: bool,
+        /// 当前 CPU 速度等级
         pub cpu_speed: CpuSpeed,
+        /// 模拟的网络连接状态
         pub online: bool,
+        /// 模拟的 HDMI 输出状态
         pub hdmi: bool,
     }
 
     impl TestPlatform {
+        /// 创建一个用于测试的模拟平台实例
         pub fn new() -> Self {
             let fb_size = (640 * 480 * 2) as usize; // RGB565
             Self {

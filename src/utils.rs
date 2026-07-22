@@ -238,7 +238,7 @@ pub fn get_display_name(path: &str) -> String {
 /// 对应 C 中 `getDisplayName` 的第一步：如果路径以 "/PLATFORM" 结尾则去除。
 /// 例如 `Tools/rg35xx/Clock.pak` → 先变成 `Tools/Clock.pak` → 再提取 "Clock"
 ///
-/// # 调用者
+/// ### 调用者
 /// `create_entry_with_platform` → 为 Tools 目录下的 Pak 生成不包含平台后缀的显示名
 pub fn get_display_name_with_platform(path: &str, platform_tag: &str) -> String {
     let platform_suffix = format!("/{}", platform_tag);
@@ -310,7 +310,7 @@ pub fn get_emu_name(path: &str, roms_path: &str) -> String {
 ///
 /// 返回找到的第一个路径，如果都不存在则返回第二个路径（即使不存在）
 ///
-/// # 调用者
+/// ### 调用者
 /// `open_rom`（未来） → 用户选择 ROM 后，用此路径构造启动命令
 /// `has_emu` 也实现了类似的两级查找逻辑，但不调用此函数
 pub fn get_emu_path(
@@ -342,7 +342,7 @@ pub fn get_emu_path(
 /// Windows 风格 `\r\n` → Unix 风格 `\n`
 /// 注意：在 C 版本中是在原 buffer 上修改，Rust 版本返回新 String
 ///
-/// # 调用者
+/// ### 调用者
 /// `get_collection` / `load_recents` → 读取文本文件（收藏列表、最近游戏）时逐行规范化
 pub fn normalize_newline(line: &str) -> String {
     let mut s = line.to_string();
@@ -356,7 +356,7 @@ pub fn normalize_newline(line: &str) -> String {
 
 /// 去除末尾换行符 —— 对应 C 中的 `trimTrailingNewlines()`
 ///
-/// # 调用者
+/// ### 调用者
 /// `get_collection` / `load_recents` → 读取文本文件的每一行后去除末尾 `\n`
 pub fn trim_trailing_newlines(s: &str) -> &str {
     s.trim_end_matches('\n')
@@ -375,7 +375,7 @@ pub fn trim_trailing_newlines(s: &str) -> &str {
 ///
 /// 返回去除前缀后的字符串切片。
 ///
-/// # 调用者
+/// ### 调用者
 /// `main` 渲染循环（未来） → 在列表中显示条目名时去除序号前缀，使界面更干净
 pub fn skip_sorting_meta(s: &str) -> &str {
     let bytes = s.as_bytes();
@@ -408,7 +408,7 @@ pub fn skip_sorting_meta(s: &str) -> &str {
 ///
 /// 同时检查文件和目录。
 ///
-/// # 调用者
+/// ### 调用者
 /// **全局使用** —— 几乎所有扫描函数和 I/O 函数都依赖此函数。是文件系统操作的基础。
 pub fn path_exists(path: &str) -> bool {
     Path::new(path).exists()
@@ -426,7 +426,7 @@ pub fn dir_exists(path: &str) -> bool {
 
 /// 创建空文件 —— 对应 C 中的 `touch()`
 ///
-/// # 调用者
+/// ### 调用者
 /// 用于创建标记文件（如 `enable-simple-mode`）或占位 `.keep` 文件
 pub fn touch(path: &str) -> std::io::Result<()> {
     fs::File::create(path)?;
@@ -437,7 +437,7 @@ pub fn touch(path: &str) -> std::io::Result<()> {
 ///
 /// 会覆盖已有内容。
 ///
-/// # 调用者
+/// ### 调用者
 /// `queue_next`（未来） → 将下一阶段命令写入 `/tmp/next`
 /// `save_last`（未来） → 将当前浏览路径写入 `/tmp/last.txt`
 /// `save_recents`（未来） → 将最近游戏列表写入持久化文件
@@ -449,7 +449,7 @@ pub fn put_file(path: &str, contents: &str) -> std::io::Result<()> {
 ///
 /// 注意：C 版本限制了读取长度（buffer_size - 1），Rust 版本读取整个文件。
 ///
-/// # 调用者
+/// ### 调用者
 /// `load_last`（未来） → 读取 `/tmp/last.txt` 恢复上次浏览位置
 /// `auto_resume`（未来） → 读取 `auto_resume.txt` 恢复被中断的游戏
 /// `load_recents` → 读取 `recent.txt` 载入最近游戏列表
@@ -472,7 +472,7 @@ pub fn get_file_limited(path: &str, max_size: usize) -> std::io::Result<String> 
 
 /// 写入整数到文件 —— 对应 C 中的 `putInt()`
 ///
-/// # 调用者
+/// ### 调用者
 /// `open_rom`（未来） → 写入存档槽位号到 `/tmp/resume_slot.txt`
 /// settings 操作（未来） → 写入音量/亮度等整数值
 pub fn put_int(path: &str, value: i32) -> std::io::Result<()> {
@@ -483,7 +483,7 @@ pub fn put_int(path: &str, value: i32) -> std::io::Result<()> {
 ///
 /// 如果文件不存在或无法解析，返回 0。
 ///
-/// # 调用者
+/// ### 调用者
 /// `platform` 实现 → 读取 `/sys/class/power_supply/battery/` 下的电池状态
 /// settings 恢复（未来） → 读取存档槽位号
 pub fn get_int(path: &str) -> i32 {
@@ -497,7 +497,7 @@ pub fn get_int(path: &str) -> i32 {
 ///
 /// 在 Rust 中直接返回 `Option<String>` 即可，不需要手动管理内存。
 ///
-/// # 调用者
+/// ### 调用者
 /// `show_version` 渲染（未来） → 读取 `version.txt` 和 `commits.txt` 以显示版本信息
 pub fn alloc_file(path: &str) -> Option<String> {
     fs::read_to_string(path).ok()
@@ -509,7 +509,7 @@ pub fn alloc_file(path: &str) -> Option<String> {
 
 /// 获取路径的文件名部分
 ///
-/// # 调用者
+/// ### 调用者
 /// `get_display_name` → 从路径中提取文件名
 /// `get_emu_name` → 从 ROMS 路径中提取目录名
 /// `scan.rs` 各函数 → 提取文件名用于 map.txt 匹配和同名检测
@@ -519,7 +519,7 @@ pub fn file_name(path: &str) -> Option<&str> {
 
 /// 获取路径的父目录
 ///
-/// # 调用者
+/// ### 调用者
 /// `is_console_dir` → 判断路径父目录是否是 ROMS_PATH
 /// `find_m3u` → 构造 m3u 文件路径需要找到 ROM 的上级目录
 /// `load_recents` → 多碟去重时需要获取碟文件所在目录
@@ -529,7 +529,7 @@ pub fn parent_dir(path: &str) -> Option<&str> {
 
 /// 检查路径是否以 `.pak` 结尾
 ///
-/// # 调用者
+/// ### 调用者
 /// `scan_dir` → 判断目录是否是一个 Pak（`.pak` 扩展名的目录视为模拟器/工具包）
 /// `get_recents_from_list` / `get_collection` → 判断最近游戏/收藏条目是 ROM 还是 Pak
 pub fn is_pak(path: &str) -> bool {
@@ -538,7 +538,7 @@ pub fn is_pak(path: &str) -> bool {
 
 /// 检查路径是否以 `.m3u` 结尾
 ///
-/// # 调用者
+/// ### 调用者
 /// `open_rom`（未来） → 如果用户选择的 ROM 本身是 m3u 文件，需要获取第一张碟
 pub fn is_m3u(path: &str) -> bool {
     suffix_match(".m3u", path)
@@ -546,7 +546,7 @@ pub fn is_m3u(path: &str) -> bool {
 
 /// 检查路径是否以 `.cue` 结尾
 ///
-/// # 调用者
+/// ### 调用者
 /// `find_cue` / `open_directory`（未来） → 检测 PS1 光盘映像的 cue 文件以判断是否自动启动
 pub fn is_cue(path: &str) -> bool {
     suffix_match(".cue", path)
@@ -559,7 +559,7 @@ pub fn normalize_line_endings(s: &str) -> String {
 
 /// 分割文件内容为行，去除空行和 `#` 注释行
 ///
-/// # 调用者
+/// ### 调用者
 /// `get_collection` / `get_discs` → 读取收藏列表和 m3u 文件时使用
 pub fn read_lines_filtered(path: &str) -> std::io::Result<Vec<String>> {
     let content = fs::read_to_string(path)?;
@@ -579,7 +579,7 @@ pub fn read_lines_filtered(path: &str) -> std::io::Result<Vec<String>> {
 mod tests {
     use super::*;
 
-    // ---- 字符串匹配 ----
+    // ==== 字符串匹配 ====
 
     #[test]
     fn test_prefix_match() {
@@ -617,7 +617,7 @@ mod tests {
         assert!(hide("")); // 空文件名应隐藏
     }
 
-    // ---- 显示名提取 ----
+    // ==== 显示名提取 ====
 
     #[test]
     fn test_get_display_name_basic() {
@@ -649,7 +649,7 @@ mod tests {
         assert!(!result.is_empty());
     }
 
-    // ---- 模拟器名提取 ----
+    // ==== 模拟器名提取 ====
 
     #[test]
     fn test_get_emu_name_from_roms() {
@@ -677,7 +677,7 @@ mod tests {
         assert_eq!(result, "/mnt/sdcard/Tools/rg35xx/Clock.pak");
     }
 
-    // ---- 字符串清理 ----
+    // ==== 字符串清理 ====
 
     #[test]
     fn test_normalize_newline() {
@@ -694,7 +694,7 @@ mod tests {
         assert_eq!(skip_sorting_meta("123"), "123"); // 有数字但没有 )
     }
 
-    // ---- 文件 I/O ----
+    // ==== 文件 I/O ====
 
     #[test]
     fn test_put_and_get_file() {

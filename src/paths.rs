@@ -104,11 +104,21 @@ pub fn simple_mode_path<P: Platform>() -> String {
     format!("{}/enable-simple-mode", shared_userdata_path::<P>())
 }
 
+/// `simple_mode_path` 的非泛型版本
+pub fn simple_mode_path_direct(sdcard: &str) -> String {
+    format!("{}/.userdata/shared/enable-simple-mode", sdcard)
+}
+
 /// 自动恢复文件 — minarch 异常退出时写入，minui 启动时检测并自动恢复游戏
 ///
 /// C: `#define AUTO_RESUME_PATH SHARED_USERDATA_PATH "/.minui/auto_resume.txt"`
 pub fn auto_resume_path<P: Platform>() -> String {
     format!("{}/.minui/auto_resume.txt", shared_userdata_path::<P>())
+}
+
+/// `auto_resume_path` 的非泛型版本 — 直接传入 SD 卡路径，便于测试
+pub fn auto_resume_path_direct(sdcard: &str) -> String {
+    format!("{}/.userdata/shared/.minui/auto_resume.txt", sdcard)
 }
 
 // ============================================================================
@@ -177,6 +187,14 @@ pub fn slot_path<P: Platform>(emu_name: &str, rom_file: &str) -> String {
     )
 }
 
+/// `slot_path` 的非泛型版本 — 直接传入 SD 卡路径，便于测试
+pub fn slot_path_direct(sdcard: &str, emu_name: &str, rom_file: &str) -> String {
+    format!(
+        "{}/.userdata/shared/.minui/{}/{}.txt",
+        sdcard, emu_name, rom_file
+    )
+}
+
 /// 构建存档槽位关联的碟号文件路径（用于多碟游戏）
 ///
 /// 格式：`<SHARED_USERDATA>/.minui/<EMU_TAG>/<ROM_FILE>.<SLOT>.txt`
@@ -193,6 +211,16 @@ pub fn disc_slot_path<P: Platform>(emu_name: &str, rom_file: &str, slot: u8) -> 
         emu_name,
         rom_file,
         slot
+    )
+}
+
+/// `disc_slot_path` 的非泛型版本 — 直接传入 SD 卡路径和槽位号
+///
+/// `slot` 是从存档槽位文件（如 `Zelda.gb.txt`）中读取的存档编号（如 "0"）。
+pub fn disc_slot_path_direct(sdcard: &str, emu_name: &str, rom_file: &str, slot: &str) -> String {
+    format!(
+        "{}/.userdata/shared/.minui/{}/{}.{}.txt",
+        sdcard, emu_name, rom_file, slot
     )
 }
 
