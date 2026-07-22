@@ -1,0 +1,26 @@
+[package]
+name = "minui"
+version = "0.1.0"
+edition = "2021"
+description = "MinUI — A minimal launcher for retro handhelds, rewritten in Rust"
+
+[dependencies]
+log = "0.4"
+
+[dev-dependencies]
+env_logger = "0.11"
+
+[features]
+default = []
+# 平台 features — 编译时选择一个
+platform-rg35xx = []
+platform-rg35xxplus = []
+platform-miyoomini = []
+platform-trimuismart = []
+platform-rgb30 = []
+platform-tg5040 = []
+platform-zero28 = []
+platform-m17 = []
+platform-gkdpixel = []
+platform-my282 = []
+platform-magicmini = []
