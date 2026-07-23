@@ -1,0 +1,18 @@
+[package]
+name = "minarch"
+version = "0.1.0"
+edition = "2021"
+description = "MinUI emulator frontend — libretro host (Rust rewrite)"
+
+[dependencies]
+log = "0.4"
+common = { path = "../common" }
+minui-platform = { path = "../minui-platform" }
+minui-render = { path = "../minui-render" }
+minui-power = { path = "../minui-power" }
+
+# FFI for dynamic loading of libretro cores
+libloading = "0.8"
+
+[dev-dependencies]
+env_logger = "0.11"

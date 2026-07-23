@@ -1,0 +1,15 @@
+[package]
+name = "platform-rgb30"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+minui-platform = { path = "../../crates/minui-platform" }
+common = { path = "../../crates/common" }
+
+[lib]
+name = "platform_rgb30"
+
+[[bin]]
+name = "keymon"
+path = "src/keymon.rs"

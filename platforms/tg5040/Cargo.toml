@@ -1,0 +1,17 @@
+[package]
+name = "platform-tg5040"
+version = "0.1.0"
+edition = "2021"
+description = "MinUI platform implementation for Trimui Smart Pro / Brick (Allwinner TG5040)"
+
+[dependencies]
+minui-platform = { path = "../../crates/minui-platform" }
+common = { path = "../../crates/common" }
+libc = "0.2"
+
+[lib]
+name = "platform_tg5040"
+
+[[bin]]
+name = "keymon"
+path = "src/keymon.rs"

@@ -1,0 +1,15 @@
+[package]
+name = "minui-launcher"
+version = "0.1.0"
+edition = "2021"
+description = "MinUI launcher — game list browser (Rust rewrite)"
+
+[dependencies]
+log = "0.4"
+common = { path = "../common" }
+minui-platform = { path = "../minui-platform" }
+minui-render = { path = "../minui-render" }
+minui-power = { path = "../minui-power" }
+
+[dev-dependencies]
+env_logger = "0.11"

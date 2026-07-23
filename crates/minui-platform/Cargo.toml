@@ -1,0 +1,8 @@
+[package]
+name = "minui-platform"
+version = "0.1.0"
+edition = "2021"
+description = "MinUI platform abstraction trait"
+
+[dependencies]
+common = { path = "../common" }

@@ -1,0 +1,8 @@
+[package]
+name = "minui-power"
+version = "0.1.0"
+edition = "2021"
+description = "MinUI power management (sleep, battery, brightness, volume)"
+
+[dependencies]
+common = { path = "../common" }

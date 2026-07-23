@@ -1,0 +1,11 @@
+[package]
+name = "common"
+version = "0.1.0"
+edition = "2021"
+description = "MinUI shared types, utilities, and path constants"
+
+[dependencies]
+log = "0.4"
+
+[dev-dependencies]
+env_logger = "0.11"

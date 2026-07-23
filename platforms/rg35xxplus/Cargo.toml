@@ -1,0 +1,17 @@
+[package]
+name = "platform-rg35xxplus"
+version = "0.1.0"
+edition = "2021"
+description = "MinUI platform implementation for Anbernic RG35XX Plus/H/SP/40XX/CubeXX/34XX"
+
+[dependencies]
+minui-platform = { path = "../../crates/minui-platform" }
+common = { path = "../../crates/common" }
+libc = "0.2"
+
+[lib]
+name = "platform_rg35xxplus"
+
+[[bin]]
+name = "keymon"
+path = "src/keymon.rs"

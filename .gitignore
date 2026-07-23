@@ -1,1 +1,31 @@
 /target
+
+# Package artifacts
+/MinUI-*.zip
+
+# Core build artifacts
+/cores/build/
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*~
+
+# Python
+__pycache__/
+
+# AI Agents
+.cursor/
+.cursorrules
+.copilot/
+.github/copilot-instructions.md
+.claude/
+CLAUDE.md
+.clinerules
+.windsurfrules
+.aider*
+.pi/
