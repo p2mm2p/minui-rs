@@ -3,8 +3,8 @@
 //! 对应原 C 代码 `main()` 中的 while 循环。
 
 use common::types::PadContext;
-use minui_platform::Platform;
-use minui_power::PowerManager;
+use platform::Platform;
+use power::PowerManager;
 
 use crate::core::EmuCore;
 use crate::menu::GameMenu;

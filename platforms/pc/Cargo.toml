@@ -1,15 +1,14 @@
 [package]
-name = "platform-zero28"
+name = "platform-pc"
 version = "0.1.0"
 edition = "2021"
+description = "MinUI PC desktop platform — reference implementation using minifb"
 
 [dependencies]
 platform = { path = "../../crates/platform" }
 common = { path = "../../crates/common" }
+minifb = "0.27"
+log = "0.4"
 
 [lib]
-name = "platform_zero28"
-
-[[bin]]
-name = "keymon"
-path = "src/keymon.rs"
+name = "platform_pc"

@@ -1,5 +1,5 @@
 [package]
-name = "minui-power"
+name = "power"
 version = "0.1.0"
 edition = "2021"
 description = "MinUI power management (sleep, battery, brightness, volume)"

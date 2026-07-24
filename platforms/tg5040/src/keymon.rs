@@ -7,7 +7,7 @@ use std::fs;
 use std::thread;
 use std::time::Duration;
 
-use platform_tg5040::libmsettings::Settings;
+use platform_tg5040::settings::Settings;
 
 // TG5040 Smart Pro evdev 扫描码
 mod evdev {

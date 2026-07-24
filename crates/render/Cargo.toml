@@ -1,10 +1,10 @@
 [package]
-name = "minui-render"
+name = "render"
 version = "0.1.0"
 edition = "2021"
 description = "MinUI software UI renderer (RGB565 framebuffer)"
 
 [dependencies]
 common = { path = "../common" }
-minui-platform = { path = "../minui-platform" }
+platform = { path = "../platform" }
 fontdue = "0.9"

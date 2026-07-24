@@ -7,9 +7,9 @@ description = "MinUI emulator frontend — libretro host (Rust rewrite)"
 [dependencies]
 log = "0.4"
 common = { path = "../common" }
-minui-platform = { path = "../minui-platform" }
-minui-render = { path = "../minui-render" }
-minui-power = { path = "../minui-power" }
+platform = { path = "../platform" }
+render = { path = "../render" }
+power = { path = "../power" }
 
 # FFI for dynamic loading of libretro cores
 libloading = "0.8"

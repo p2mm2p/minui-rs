@@ -5,7 +5,7 @@ edition = "2021"
 description = "MinUI platform implementation for Trimui Smart Pro / Brick (Allwinner TG5040)"
 
 [dependencies]
-minui-platform = { path = "../../crates/minui-platform" }
+platform = { path = "../../crates/platform" }
 common = { path = "../../crates/common" }
 libc = "0.2"
 

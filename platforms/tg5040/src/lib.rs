@@ -9,10 +9,10 @@
 use std::fs;
 use std::io;
 
-use minui_platform::*;
+use platform::*;
 use common::types::*;
 
-mod libmsettings;
+mod settings;
 
 // ============================================================================
 // 平台常量 — evdev 扫描码
@@ -64,7 +64,7 @@ pub struct Tg5040 {
     input_fds: Vec<i32>,
 
     /// 设置
-    settings: libmsettings::Settings,
+    settings: settings::Settings,
 
     /// 是否是 Brick 变体 (1024×768)
     is_brick: bool,
@@ -72,7 +72,7 @@ pub struct Tg5040 {
 
 impl Tg5040 {
     pub fn new() -> Self {
-        let settings = libmsettings::Settings::new();
+        let settings = settings::Settings::new();
 
         // TODO: 运行时检测 Brick 变体
         let is_brick = false;

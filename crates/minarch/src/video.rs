@@ -2,7 +2,7 @@
 //!
 //! 对应原 C 代码中的 `selectScaler()`, `video_refresh_callback()`。
 
-use minui_platform::GfxRenderer;
+use platform::GfxRenderer;
 
 /// 缩放模式
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

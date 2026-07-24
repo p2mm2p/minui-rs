@@ -10,7 +10,7 @@
 //! 通过 `libloading` crate 动态加载 .so 文件，实现 EmuCore trait。
 //! 未来可以添加 Rust 原生核心的实现（编译时链接）。
 
-use minui_platform::AudioFrame;
+use platform::AudioFrame;
 
 /// 系统信息
 pub struct SystemInfo {

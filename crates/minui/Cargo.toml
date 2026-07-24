@@ -1,5 +1,5 @@
 [package]
-name = "minui-launcher"
+name = "minui"
 version = "0.1.0"
 edition = "2021"
 description = "MinUI launcher — game list browser (Rust rewrite)"
@@ -7,9 +7,23 @@ description = "MinUI launcher — game list browser (Rust rewrite)"
 [dependencies]
 log = "0.4"
 common = { path = "../common" }
-minui-platform = { path = "../minui-platform" }
-minui-render = { path = "../minui-render" }
-minui-power = { path = "../minui-power" }
+platform = { path = "../platform" }
+render = { path = "../render" }
+power = { path = "../power" }
+
+# ── 平台依赖（编译时 feature 选择）──
+#
+# 对应 C 原版的工作方式：
+#   - 每个平台是一个 Cargo feature
+#   - 编译时 `cargo build --features platform-tg5040` 选择一个平台
+#   - 只有被选中平台的 crate 才会编译和链接
+platform-pc = { path = "../../platforms/pc", optional = true }
+platform-tg5040 = { path = "../../platforms/tg5040", optional = true }
+
+[features]
+default = []
+platform-pc = ["dep:platform-pc"]
+platform-tg5040 = ["dep:platform-tg5040"]
 
 [dev-dependencies]
 env_logger = "0.11"

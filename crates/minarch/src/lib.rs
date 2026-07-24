@@ -29,8 +29,8 @@ pub mod save;
 pub mod menu;
 pub mod main_loop;
 
-use minui_platform::Platform;
-use minui_power::PowerManager;
+use platform::Platform;
+use power::PowerManager;
 
 /// minarch 的主入口
 ///

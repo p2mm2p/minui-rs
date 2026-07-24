@@ -2,13 +2,14 @@
 resolver = "2"
 members = [
     "crates/common",
-    "crates/minui-platform",
-    "crates/minui-render",
-    "crates/minui-power",
+    "crates/platform",
+    "crates/render",
+    "crates/power",
     "crates/minui",
     "crates/minarch",
 
     # Platforms
+    "platforms/pc",
     "platforms/rg35xxplus",
     "platforms/rg35xx",
     "platforms/miyoomini",

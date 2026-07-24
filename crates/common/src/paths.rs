@@ -1,7 +1,7 @@
 //! # SD 卡路径常量和辅助函数
 //!
 //! 所有不依赖 Platform trait 的路径定义都在这里。
-//! 依赖 Platform 关联常量的泛型版本在 `minui-platform` crate 中。
+//! 依赖 Platform 关联常量的泛型版本在 `platform` crate 中。
 //!
 //! ## 目录结构回顾
 //!

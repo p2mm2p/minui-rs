@@ -11,7 +11,7 @@
 //! 对应 C 代码中 `SCALE1/SCALE2/SCALE3/SCALE4` 宏的效果。
 
 use fontdue::{Font, FontSettings};
-use minui_platform::Framebuffer;
+use platform::Framebuffer;
 use common::types::Entry;
 
 // ============================================================================

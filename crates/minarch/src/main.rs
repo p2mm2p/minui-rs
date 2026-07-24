@@ -30,7 +30,7 @@ fn main() {
     };
 
     let font_data = include_bytes!("../../minui/resources/BPreplayBold-unhinted.otf");
-    let mut power = minui_power::PowerManager::new();
+    let mut power = power::PowerManager::new();
 
     if let Err(e) = minarch::run(&mut platform, core_path, rom_path, font_data, &mut power) {
         eprintln!("minarch error: {}", e);

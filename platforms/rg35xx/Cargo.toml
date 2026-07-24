@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-minui-platform = { path = "../../crates/minui-platform" }
+platform = { path = "../../crates/platform" }
 common = { path = "../../crates/common" }
 
 [lib]

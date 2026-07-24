@@ -5,7 +5,7 @@ edition = "2021"
 description = "MinUI platform implementation for Anbernic RG35XX Plus/H/SP/40XX/CubeXX/34XX"
 
 [dependencies]
-minui-platform = { path = "../../crates/minui-platform" }
+platform = { path = "../../crates/platform" }
 common = { path = "../../crates/common" }
 libc = "0.2"
 

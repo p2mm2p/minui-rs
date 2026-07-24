@@ -18,9 +18,9 @@ use std::time::Instant;
 use common::types::*;
 use common::utils::*;
 use common::paths;
-use minui_render::{UiRenderer, ListRenderInput, HardwareStatus, ButtonHint, Rgb565};
-use minui_power::PowerManager;
-use minui_platform::{Platform, Framebuffer};
+use render::{UiRenderer, ListRenderInput, HardwareStatus, ButtonHint, Rgb565};
+use power::PowerManager;
+use platform::{Platform, Framebuffer};
 
 use crate::scan;
 use crate::launch;

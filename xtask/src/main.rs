@@ -134,7 +134,7 @@ fn cmd_build(platform_tag: &str, release: bool) -> Result<(), String> {
     println!("╚════════════════════════════════════╝\n");
 
     println!("[1/2] Compiling for {}...", p.rust_target);
-    cargo_build("minui-launcher", p.rust_target, p.cargo_feature, release)?;
+    cargo_build_bin("minui", "minui", p.rust_target, p.cargo_feature, release)?;
     cargo_build("minarch", p.rust_target, p.cargo_feature, release)?;
     cargo_build_bin(p.pkg, "keymon", p.rust_target, p.cargo_feature, release)?;
 
@@ -159,7 +159,7 @@ fn cmd_build(platform_tag: &str, release: bool) -> Result<(), String> {
     // 放入编译产物
     let bin_dir = staging.join("SYSTEM").join(p.tag).join("bin");
     fs::create_dir_all(&bin_dir).map_err(|e| format!("mkdir bin: {}", e))?;
-    fs::copy(binary_path("minui-launcher", p.rust_target, release), bin_dir.join("minui"))
+    fs::copy(binary_path("minui", p.rust_target, release), bin_dir.join("minui"))
         .map_err(|e| format!("copy minui: {}", e))?;
     fs::copy(binary_path("minarch", p.rust_target, release), bin_dir.join("minarch"))
         .map_err(|e| format!("copy minarch: {}", e))?;

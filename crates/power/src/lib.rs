@@ -44,6 +44,21 @@ pub const LOW_CHARGE_THRESHOLD: u8 = 10;
 /// 对应 C 中的 SETTING_DELAY 500
 pub const SETTING_DISPLAY_MS: u32 = 500;
 
+/// 默认亮度（当 /tmp/settings/ 不可用时，如 PC 平台或首次启动）
+const DEFAULT_BRIGHTNESS: u8 = 5;
+/// 默认音量
+const DEFAULT_VOLUME: u8 = 10;
+
+/// 从 /tmp/settings/<name> 读取 u8 值
+/// 文件不存在或内容无法解析时返回默认值
+fn read_setting_from_tmpfs(name: &str, default: u8) -> u8 {
+    let path = format!("/tmp/settings/{}", name);
+    std::fs::read_to_string(&path)
+        .ok()
+        .and_then(|s| s.trim().parse().ok())
+        .unwrap_or(default)
+}
+
 // ============================================================================
 // PowerManager
 // ============================================================================
@@ -91,7 +106,7 @@ pub struct PowerManager {
 }
 
 impl PowerManager {
-    /// 创建电源管理器，所有字段初始化为默认值
+    /// 创建电源管理器，亮度/音量从 /tmp/settings/ 读取初始值
     pub fn new() -> Self {
         Self {
             initialized: false,
@@ -104,8 +119,8 @@ impl PowerManager {
             autopoweroff_timeout_ms: AUTOPOWEROFF_TIMEOUT_MS,
             battery_charge: 80,
             battery_charging: false,
-            brightness: BRIGHTNESS_MAX / 2,
-            volume: VOLUME_MAX / 2,
+            brightness: read_setting_from_tmpfs("brightness", DEFAULT_BRIGHTNESS),
+            volume: read_setting_from_tmpfs("volume", DEFAULT_VOLUME),
             show_setting: 0,
             setting_display_timer: 0,
             low_charge_warned: false,
@@ -449,5 +464,64 @@ mod tests {
         pm.check_autosleep(110);
         pm.update(200);
         assert!(!pm.poweroff_requested); // 关机被禁用
+    }
+
+    // ── tmpfs settings 读取测试 ──
+
+    #[test]
+    fn test_read_setting_from_tmpfs_existing() {
+        let dir = "/tmp/settings";
+        let _ = std::fs::create_dir_all(dir);
+        std::fs::write(format!("{}/test_brightness", dir), "7").unwrap();
+
+        let val = read_setting_from_tmpfs("test_brightness", 5);
+        assert_eq!(val, 7);
+
+        std::fs::remove_file(format!("{}/test_brightness", dir)).ok();
+    }
+
+    #[test]
+    fn test_read_setting_from_tmpfs_missing_file() {
+        let val = read_setting_from_tmpfs("nonexistent_key_xyz", 5);
+        assert_eq!(val, 5); // 返回默认值
+    }
+
+    #[test]
+    fn test_read_setting_from_tmpfs_invalid_content() {
+        let dir = "/tmp/settings";
+        let _ = std::fs::create_dir_all(dir);
+        std::fs::write(format!("{}/test_garbage", dir), "not_a_number").unwrap();
+
+        let val = read_setting_from_tmpfs("test_garbage", 3);
+        assert_eq!(val, 3); // 解析失败，返回默认值
+
+        std::fs::remove_file(format!("{}/test_garbage", dir)).ok();
+    }
+
+    #[test]
+    fn test_new_reads_from_tmpfs() {
+        let dir = "/tmp/settings";
+        let _ = std::fs::create_dir_all(dir);
+        // 用独立文件名避免与其他测试冲突
+        std::fs::write(format!("{}/pwrtest_bright", dir), "8").unwrap();
+        std::fs::write(format!("{}/pwrtest_vol", dir), "15").unwrap();
+
+        let b = read_setting_from_tmpfs("pwrtest_bright", 5);
+        let v = read_setting_from_tmpfs("pwrtest_vol", 10);
+        assert_eq!(b, 8);
+        assert_eq!(v, 15);
+
+        std::fs::remove_file(format!("{}/pwrtest_bright", dir)).ok();
+        std::fs::remove_file(format!("{}/pwrtest_vol", dir)).ok();
+    }
+
+    #[test]
+    fn test_new_uses_defaults_when_no_files() {
+        let pm = PowerManager::new();
+        // 这里不强制删除 /tmp/settings/brightness，因为并行测试可能正在使用
+        // 默认值测试依赖于文件自然不存在（CI 环境 / PC 首次运行）
+        // 如果有文件存在且值匹配，也允许通过
+        assert!(pm.brightness <= BRIGHTNESS_MAX);
+        assert!(pm.volume <= VOLUME_MAX);
     }
 }

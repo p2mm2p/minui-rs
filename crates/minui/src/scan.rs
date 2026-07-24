@@ -101,7 +101,6 @@ fn create_entry(path: &str, entry_type: EntryType) -> Entry {
     }
 }
 
-#[allow(dead_code)]
 fn create_entry_with_platform(path: &str, entry_type: EntryType, platform_tag: &str) -> Entry {
     let name = get_display_name_with_platform(path, platform_tag);
     Entry {

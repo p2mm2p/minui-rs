@@ -2,7 +2,7 @@
 //!
 //! 对应原 C 代码中的 `SND_*` 函数族。
 
-use minui_platform::AudioFrame;
+use platform::AudioFrame;
 
 /// 音频缓冲区（环形缓冲）
 pub struct AudioRing {
