@@ -1,0 +1,76 @@
+# wiki-sync — 将 docs/ 单向镜像同步到 GitHub Wiki
+
+# 触发：push 到 main 且 docs/ 或本文件变更；支持手动触发（首次启用后验证用）
+# 凭据说明：GitHub 不提供 wiki 附属仓库（<repo>.wiki）的网页 settings，
+#   无法添加 deploy key——采用 classic PAT（public_repo scope），
+#   由用户创建后存 repo secrets：WIKI_PAT
+name: wiki-sync
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/wiki-sync.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sync docs to wiki
+        env:
+          WIKI_PAT: ${{ secrets.WIKI_PAT }}
+        run: |
+          set -euo pipefail
+          if [ -z "${WIKI_PAT:-}" ]; then
+            echo "::error::WIKI_PAT secret 未配置——请创建 classic PAT（public_repo scope）并存入仓库 secrets"
+            exit 1
+          fi
+          # wiki 是独立 git 仓库：https + PAT（GITHUB_TOKEN 无法推送 wiki）
+          WIKI_URL="https://x-access-token:${WIKI_PAT}@github.com/${{ github.repository }}.wiki.git"
+          rm -rf wiki
+          git clone --depth 1 "$WIKI_URL" wiki
+          cd wiki
+
+          # 1) 清空镜像区：删除根级 *.md（保留人工壳文件 _Sidebar.md/_Footer.md）与 modules/ 目录
+          find . -maxdepth 1 -name "*.md" ! -name "_Sidebar.md" ! -name "_Footer.md" -delete
+          rm -rf modules
+          git rm -rq --ignore-unmatch modules 2>/dev/null || true
+
+          # 2) 拷贝 docs 内容：根级页面平铺，modules/ 保持相对结构
+          cd ..
+          cp docs/getting-started.md docs/architecture.md wiki/
+          mkdir -p wiki/modules
+          cp docs/modules/*.md wiki/modules/
+
+          # 3) Home = docs/index.md + 顶部注入源码入口（发布面隔离：wiki 侧引用代码的唯一入口）
+          {
+            echo "> **源码仓库**：[${{ github.repository }}](${{ github.server_url }}/${{ github.repository }})"
+            echo ">"
+            echo "> 本 wiki 由仓库 \`docs/\` 自动同步（单向覆盖）——网页端编辑会被下次同步覆盖，修改请走仓库 PR。"
+            echo
+            cat docs/index.md
+          } > wiki/Home.md
+
+          # 4) 遍历全部页面改写链接：wiki 按页面名寻址（忽略目录层级、不带 .md 后缀），
+          #    带 .md 的相对链接会被重定向到 raw 文件——统一改写为裸页面名
+          find wiki -name '*.md' ! -name '_Sidebar.md' ! -name '_Footer.md' -print0 \
+            | xargs -0 sed -i -E 's#\]\(([^)]*/)?([^/)]+)\.md\)#](\2)#g'
+
+          # 5) 提交并推送（无变更则跳过）
+          cd wiki
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "docs unchanged, skip push"
+          else
+            git commit -m "docs: sync from main (${{ github.sha }})"
+            git push origin HEAD:master
+          fi

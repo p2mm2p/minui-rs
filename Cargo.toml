@@ -1,0 +1,20 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/common",
+    "crates/render",
+    "crates/minui",
+    "crates/minarch",
+    "crates/clock",
+    "crates/minput",
+    "platforms/tg5040",
+    "platforms/tg5040/show",
+    "platforms/tg5040/keymon",
+    "platforms/tg5040/xtask",
+    "xtask",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT"

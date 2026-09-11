@@ -1,0 +1,11 @@
+[package]
+name = "tg5040-xtask"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "tg5040-xtask"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }

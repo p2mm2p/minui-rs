@@ -1,0 +1,81 @@
+name: Question 咨询
+description: 提出使用、配置或行为相关的问题，寻求帮助
+title: "[Question]: "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢你的提问！请尽量完整填写以下信息，方便我们更快理解并回答你的问题。
+        如果你的问题属于 Bug 或功能请求，请改用对应的 Issue 模板。
+
+  - type: input
+    id: summary
+    attributes:
+      label: 问题简述
+      description: 用一句话概括你的问题。
+      placeholder: "例如：如何配置自定义字体？"
+    validations:
+      required: true
+
+  - type: textarea
+    id: detail
+    attributes:
+      label: 问题详情
+      description: 请详细描述你遇到的问题或想了解的内容。
+      placeholder: "例如：我按照文档配置后，仍然是系统默认字体……"
+    validations:
+      required: true
+
+  - type: textarea
+    id: tried
+    attributes:
+      label: 已尝试的操作
+      description: 你已经尝试过哪些方法？搜索过哪些资料？
+      placeholder: "例如：已查阅 README、搜索过现有 Issue、尝试更换过其它字体……"
+    validations:
+      required: false
+
+  - type: input
+    id: version
+    attributes:
+      label: 版本 / Commit
+      description: 你使用的版本号、分支或 commit hash。
+      placeholder: "例如：v1.2.3 或 main@abc1234"
+    validations:
+      required: false
+
+  - type: textarea
+    id: config
+    attributes:
+      label: 相关配置或代码片段
+      description: 请粘贴相关配置、代码或命令。注意隐藏敏感信息。
+    validations:
+      required: false
+
+  - type: textarea
+    id: expectation
+    attributes:
+      label: 期望得到的帮助
+      description: 你希望我们提供什么？例如解释、示例、排查思路等。
+      placeholder: "例如：希望给出一个可用的配置示例。"
+    validations:
+      required: false
+
+  - type: textarea
+    id: references
+    attributes:
+      label: 参考链接 / 补充信息
+      description: 可粘贴相关文档、截图、Issue/PR 链接等。
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: 检查清单
+      options:
+        - label: 我已搜索现有 Issue 和文档，确认没有找到答案
+        - label: 我已确认这不是一个 Bug 报告或功能请求
+        - label: 我已尽量提供可复现的配置或代码片段
+        - label: 我愿意在必要时提供更多信息

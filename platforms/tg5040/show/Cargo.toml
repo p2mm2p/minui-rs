@@ -1,0 +1,28 @@
+[package]
+name = "platform-tg5040-show"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+# show 启动画面工具（平台自治 bin，对应原版 show.elf）：安装/更新时
+# 显示进度提示图。与 keymon 同为平台自治 bin 的独立 crate——由平台
+# 子 xtask（tg5040-xtask）编译并复制进发布包（SYSTEM/tg5040/bin/ 与
+# BOOT/common/tg5040/ 两处）。不复用 render，自实现 PNG 解码。
+name = "show"
+path = "src/main.rs"
+
+[dependencies]
+# 平台 lib：Tg5040（pub）+ Platform trait 方法（init_video/flip/quit_video）
+# 访问视频、SCREEN_WIDTH/HEIGHT 常量（随编译期 device feature 取值）
+platform-tg5040 = { path = ".." }
+common = { path = "../../../crates/common" }
+# png：show 自实现 PNG 解码（load_png）——纯 Rust 解码库，无 C 依赖；
+# 不依赖 render（平台自治 bin 自包含图片能力）
+png = "0.17"
+
+[features]
+# 设备变体 feature 透传：show 的分辨率随编译期 device feature
+# （smart 1280×720 / brick 1024×768，经 Tg5040::SCREEN_WIDTH/HEIGHT）。
+# 由平台子 xtask 编译时透传（--features smart|brick）。
+smart = ["platform-tg5040/smart"]
+brick = ["platform-tg5040/brick"]

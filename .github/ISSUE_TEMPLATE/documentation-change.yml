@@ -1,0 +1,97 @@
+name: Documentation 修改
+description: 报告 README、docs、代码注释、Wiki 等文档问题，或提出文档改进建议
+title: "[Documentation]: "
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢你帮助改进文档！请尽量填写以下信息，方便维护者快速处理。
+
+        > **注意**：本仓库的 GitHub Wiki 由 `docs/` 单向同步，网页端直接编辑 Wiki 会被下次同步覆盖。Wiki 页面修改请通过仓库 PR 提交对 `docs/` 的改动。
+
+  - type: dropdown
+    id: doc_surface
+    attributes:
+      label: 文档位置
+      description: 需要修改的文档属于哪一类？
+      options:
+        - README.md
+        - docs/ 及 modules/
+        - PAKS.md
+        - i18n 翻译
+        - 代码注释（含 rustdoc）
+        - Wiki 页面
+        - 其他
+    validations:
+      required: true
+
+  - type: input
+    id: doc_path
+    attributes:
+      label: 具体位置
+      description: 请提供文件路径、Wiki 页面链接，或注明涉及的函数/模块。
+      placeholder: "例如：docs/getting-started.md、crates/minui/src/… 或 https://github.com/…/wiki/页面名"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: change_type
+    attributes:
+      label: 修改类型
+      description: 这次修改主要属于哪一类？
+      options:
+        - 内容纠错
+        - 补充内容
+        - 更新过时信息
+        - 格式/排版调整
+        - 新增页面
+        - 删除/合并页面
+        - 翻译/本地化
+        - 其他
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_problem
+    attributes:
+      label: 当前问题或修改原因
+      description: 请说明现有文档哪里有问题、缺失或已过时。
+      placeholder: 例如：某段命令无法运行；某配置项已经改名；缺少某步骤说明。
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_change
+    attributes:
+      label: 期望的修改内容
+      description: 请描述希望改成什么。如果可以，请给出建议文本或结构。
+      placeholder: 例如：将命令改为 ...；新增一节 ...；删除 ...。
+    validations:
+      required: true
+
+  - type: textarea
+    id: draft
+    attributes:
+      label: 建议草稿、代码示例或参考链接
+      description: 可粘贴建议内容、代码片段、截图链接或参考资料。
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: 补充信息
+      description: 其他有助于处理此 Issue 的信息，例如截图、相关 Issue/PR 链接。
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: 检查清单
+      options:
+        - label: 我已搜索现有 Issue，确认没有重复
+        - label: 我提供的文档位置（路径或 Wiki 链接）有效
+        - label: 如果涉及代码示例，我已尽量验证其可运行
+        - label: 我已了解 Wiki 由 docs/ 自动同步，修改需通过仓库 PR 提交

@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+
+# 构建/发布产物
+build
+releases
+*.zip
+
+# Rust 产物
+target
+
+# libretro 核心克隆源码与编译产物
+**/cores/src
+**/cores/output
+
+# 编译中间产物（对齐 C 原版）
+*.o
+*.so
+*.elf
+*.dtb

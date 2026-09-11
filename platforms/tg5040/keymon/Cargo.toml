@@ -1,0 +1,26 @@
+[package]
+name = "platform-tg5040-keymon"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+# keymon 独立进程（对应原版 keymon.elf）：系统级按键监控
+# 直接读 evdev，调用 settings 调节亮度/音量。平台自治 bin，
+# 由平台子 xtask（tg5040-xtask）编译并复制进发布包。
+name = "keymon"
+path = "src/main.rs"
+
+[dependencies]
+# 平台 lib：settings 模块（SettingsHandle——亮度/音量/静音/耳机设置）与
+# common 依赖经平台 lib 传递；evdev 模块随 keymon 迁入本 crate（src/evdev.rs）
+platform-tg5040 = { path = ".." }
+# libc：evdev 的 open/read/sigaction FFI 与 settings 的共享内存（经平台 lib）
+libc = "0.2"
+
+[features]
+# 设备变体 feature 透传（平台 feature 系统规范——见
+#
+# 分叉，但编译须启用一个设备 feature（依赖的平台 lib 强制互斥必选）。
+# 由平台子 xtask 编译时透传（--features smart|brick）。
+smart = ["platform-tg5040/smart"]
+brick = ["platform-tg5040/brick"]

@@ -1,0 +1,16 @@
+[package]
+name = "minput"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+common = { path = "../common" }
+render = { path = "../render" }
+
+# 平台依赖 key = 平台代码（package rename）——`--features tg5040/<device>`
+# 透传语法依赖 dep key 匹配；平台代码约定
+tg5040 = { package = "platform-tg5040", path = "../../platforms/tg5040", optional = true }
+
+[features]
+default = []
+tg5040 = ["dep:tg5040"]

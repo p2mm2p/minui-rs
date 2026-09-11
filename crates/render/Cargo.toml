@@ -1,0 +1,9 @@
+[package]
+name = "render"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+common = { path = "../common" }
+fontdue = "0.9.2"
+png = "0.17"
