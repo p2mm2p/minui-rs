@@ -14,11 +14,11 @@ path = "src/main.rs"
 [dependencies]
 # 平台 lib：Tg5040（pub）+ Platform trait 方法（init_video/flip/quit_video）
 # 访问视频、SCREEN_WIDTH/HEIGHT 常量（随编译期 device feature 取值）
-platform-tg5040 = { path = ".." }
-common = { path = "../../../crates/common" }
+platform-tg5040 = { workspace = true }
+common = { workspace = true }
 # png：show 自实现 PNG 解码（load_png）——纯 Rust 解码库，无 C 依赖；
 # 不依赖 render（平台自治 bin 自包含图片能力）
-png = "0.17"
+png = { workspace = true }
 
 [features]
 # 设备变体 feature 透传：show 的分辨率随编译期 device feature

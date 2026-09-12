@@ -17,80 +17,80 @@
 mod prefs;
 mod validate;
 
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use validate::{adjust, display_hour, field_at, move_cursor, option_count, validate};
 
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use common::input::{
     BTN_A, BTN_B, BTN_DPAD_DOWN, BTN_DPAD_LEFT, BTN_DPAD_RIGHT, BTN_DPAD_UP, BTN_SELECT,
 };
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use common::paths::get_res_path;
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use common::platform::Platform;
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use common::power::CpuSpeed;
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use common::video::{
     BUTTON_PADDING, BUTTON_SIZE, FONT_PATH, PILL_SIZE, RGB_BLACK, RGB_WHITE, Rect, VideoBuffer,
 };
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use render::asset::load_atlas;
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use render::button::blit_button_group;
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use render::hardware::{HardwareStatus, blit_hardware_group};
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use render::pill::blit_pill;
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use render::text::Font;
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use render::text::{load_font, render_text, size_text};
 
 /// 帧预算（毫秒）——对应 C `FRAME_BUDGET 17`（api.c:204，60fps）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 const FRAME_BUDGET: u32 = 17;
 
 /// 数字区字号（对应 C `font.large`，defines.h:66 的 `FONT_LARGE 16`）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 const FONT_LARGE: u32 = 16;
 
 /// 提示文字字号（对应 C `font.tiny`，defines.h:65 的 `FONT_TINY 10`）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 const FONT_TINY: u32 = 10;
 
 /// 数字区垂直高度（对应 C `DIGIT_HEIGHT 16`，clock.c:39）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 const DIGIT_HEIGHT: u32 = 16;
 
 /// 光标下划线纵向偏移（对应 C `y += SCALE1(19)`，clock.c:299）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 const CURSOR_OFFSET_Y: u32 = 19;
 
 /// 年字段光标宽度（对应 C `SCALE1(40)`，clock.c:304）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 const YEAR_CURSOR_W: u32 = 40;
 
 /// 普通字段光标宽度（对应 C `SCALE1(20)`，clock.c:304）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 const FIELD_CURSOR_W: u32 = 20;
 
 /// 日期前缀占位宽度（对应 C `SCALE1(50)`——"YYYY/" 前缀，clock.c:302）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 const DATE_PREFIX_W: u32 = 50;
 
 /// 字段间步进（对应 C `SCALE1(30)`，clock.c:303——两个数字 + 间距）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 const FIELD_STEP: u32 = 30;
 
 fn main() {
-    #[cfg(feature = "tg5040")]
+    #[cfg(feature = "platform-tg5040")]
     {
-        let mut platform = tg5040::Tg5040::new();
+        let mut platform = platform_tg5040::Tg5040::new();
         run(&mut platform);
     }
     // 无平台 feature（如单元测试编译）时保持占位输出
-    #[cfg(not(feature = "tg5040"))]
+    #[cfg(not(feature = "platform-tg5040"))]
     {
         println!("clock - no platform feature selected");
     }
@@ -101,7 +101,7 @@ fn main() {
 /// # 参数
 ///
 /// - `platform`: 平台实例（`Platform` trait 实现）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 fn run<P: Platform>(platform: &mut P) {
     // ── 启动序列（对应 C :23-60）──
 
@@ -355,7 +355,7 @@ fn run<P: Platform>(platform: &mut P) {
 /// # 返回值
 ///
 /// `(x, 宽度)`——下划线定位
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 fn cursor_geometry(
     cursor: u32,
     show_24hour: bool,
@@ -392,7 +392,7 @@ fn cursor_geometry(
 /// # 返回值
 ///
 /// 本地时间的年/月/日/时/分/秒
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 fn localtime(secs: i64) -> LocalTime {
     unsafe {
         let mut tm: libc::tm = std::mem::zeroed();
@@ -410,7 +410,7 @@ fn localtime(secs: i64) -> LocalTime {
 }
 
 /// 本地时间分解结果
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 struct LocalTime {
     year: i32,
     month: i32,

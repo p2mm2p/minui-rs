@@ -249,7 +249,7 @@ pub(crate) fn aux_scope_args(platform: Option<&str>, device: &str) -> Vec<String
     if let Some(p) = platform {
         // 启用本平台的 device feature
         args.push("--features".to_string());
-        args.push(format!("{p}/{device}"));
+        args.push(format!("platform-{p}/{device}"));
     }
     args
 }
@@ -627,7 +627,10 @@ mod tests {
         assert!(!joined.contains("--exclude platform-tg5040"), "{joined}");
         assert!(!joined.contains("--exclude tg5040-xtask"), "{joined}");
         // 显式 device feature（成对必填）
-        assert!(joined.contains("--features tg5040/brick"), "{joined}");
+        assert!(
+            joined.contains("--features platform-tg5040/brick"),
+            "{joined}"
+        );
     }
 
     #[test]

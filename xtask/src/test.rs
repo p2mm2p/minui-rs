@@ -85,7 +85,10 @@ mod tests {
         assert!(!joined.contains("--exclude platform-tg5040 "), "{joined}");
         assert!(!joined.contains("--exclude tg5040-xtask"), "{joined}");
         // 带显式 device feature（成对必填，无默认）
-        assert!(joined.contains("--features tg5040/brick"), "{joined}");
-        assert!(!joined.contains("tg5040/smart"), "{joined}");
+        assert!(
+            joined.contains("--features platform-tg5040/brick"),
+            "{joined}"
+        );
+        assert!(!joined.contains("platform-tg5040/smart"), "{joined}");
     }
 }

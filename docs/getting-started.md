@@ -26,7 +26,7 @@ podman build -t minui-toolchain:latest toolchain/   # apt + rustup 下载需数�
 
 # 编译（设备 feature 必选——平台 crate 无默认设备，smart/brick 必须显式指定）
 # 注意：面向真机（ARM Linux）的编译经工具链容器执行（见上）；以下仅宿主本机架构调试用
-cargo build -p minui --features tg5040/smart --release
+cargo build -p minui --features platform-tg5040/smart --release
 
 # 宿主直跑的检查命令（不需容器，通用层代码）
 cargo xtask test            # 单元测试（排除平台 crate）
@@ -35,7 +35,7 @@ cargo xtask doc             # rustdoc（排除平台 crate）
 cargo xtask test --platform tg5040 --device smart   # 连带平台（需宿主能编译平台）
 ```
 
-**平台 feature 系统**：平台 crate（如 `platform-tg5040`）的设备 feature（`smart`/`brick`）互斥且必选、无默认——未指定设备或同时指定两个时编译期报错（`compile_error!` 断言）。上层 crate 以 `--features <平台代码>/<device>` 透传（详见 [架构页](architecture.md) workspace 契约）。
+**平台 feature 系统**：平台 crate（如 `platform-tg5040`）的设备 feature（`smart`/`brick`）互斥且必选、无默认——未指定设备或同时指定两个时编译期报错（`compile_error!` 断言）。上层 crate 以 `--features platform-<code>/<device>` 透传（详见 [架构页](architecture.md) workspace 契约）。
 
 ## 4. 构建与打包（toolchain 流水线）
 

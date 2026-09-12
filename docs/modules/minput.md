@@ -140,7 +140,7 @@ minput 是一个二进制 crate（`main.rs`），不对外暴露库 API。其模
 ```rust
 // main.rs
 fn main() {
-    #[cfg(feature = "tg5040")]
+    #[cfg(feature = "platform-tg5040")]
     {
         let mut platform = tg5040::Tg5040::new();
         run(&mut platform);          // 实际装配（启动序列 → 主循环 → 退出）
@@ -155,10 +155,10 @@ fn main() {
 与 clock 相同，minput 通过 Cargo feature flag 选择目标平台（设备 feature 必选——`tg5040` 后必须跟 `/smart` 或 `/brick`，见 workspace-structure spec「平台 feature 系统规范」）：
 
 ```sh
-cargo build -p minput --features tg5040/smart --release
+cargo build -p minput --features platform-tg5040/smart --release
 ```
 
-每个 feature 对应一个 `platform-*` crate。编译时只有一个平台实现被链接进来。minput 的 `Cargo.toml` 声明 optional 平台依赖 + `tg5040` feature（`["dep:tg5040"]`），与 `crates/clock/Cargo.toml` 完全同模式。
+每个 feature 对应一个 `platform-*` crate。编译时只有一个平台实现被链接进来。minput 的 `Cargo.toml` 声明 optional 平台依赖 + `platform-tg5040` feature（`["dep:platform-tg5040"]`），与 `crates/clock/Cargo.toml` 完全同模式。
 
 ## 关键代码解析
 

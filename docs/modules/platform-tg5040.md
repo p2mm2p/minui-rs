@@ -181,38 +181,21 @@ SCALE 不是: "逻辑画布放大到物理屏的倍率"——flip 恒为 1:1（�
 ### 3.1 依赖方向
 
 ```
-common（零依赖，trait 定义处）
+common（零依赖，Platform trait 定义处）
   ↑
-platform-tg5040（本 crate：common + sdl2 + libc + png）
-  ↑
-minui / minarch（装配层：依赖 common + 平台 crate）
+  ├── platform-tg5040（平台 lib：sdl2 + sdl2-sys + libc）
+  │     ↑
+  │     ├── show（平台自治 bin：+ common、png——自实现 PNG 解码）
+  │     └── keymon（平台自治 bin：+ libc；不直接依赖 common）
+  │
+  └── minui / minarch / clock / minput（装配层）
+        依赖 common + render + platform-tg5040（可选，经 feature 透传）
+        额外第三方：minarch = libloading + flate2；clock = libc
 ```
 
 依赖方向严格遵守单向：**平台 crate 依赖 common，永远不向上依赖**（render、minui、minarch 不出现在本 crate 的依赖链中——`cargo tree -p platform-tg5040 --invert` 可验证）。render 的渲染函数由上层调用，平台只提供画布（`VideoBuffer`）给上层画。
 
-### 3.2 依赖声明（`Cargo.toml`）
-
-平台 lib（纯 lib——show/keymon 已拆为独立 crate）：
-
-```toml
-[dependencies]
-common = { path = "../../crates/common" }        # Platform trait 定义处
-sdl2 = { version = "0.36", features = ["unsafe_textures"] }  # 视频/音频/输入
-libc = "0.2"                                   # shm_open / mmap / ioctl（settings/power）
-```
-
-平台自治 bin 的依赖（独立 crate）：
-
-```toml
-# platforms/tg5040/show/Cargo.toml（platform-tg5040-show）
-platform-tg5040 = { path = ".." }              # Tg5040 + Platform trait（视频）
-common = { path = "../../../crates/common" }
-png = "0.17"                                   # show 自实现 PNG 解码（仅 show 用）
-
-# platforms/tg5040/keymon/Cargo.toml（platform-tg5040-keymon）
-platform-tg5040 = { path = ".." }              # settings（SettingsHandle）
-libc = "0.2"                                   # evdev 直读（随 keymon 迁入 src/evdev.rs）
-```
+### 3.2 各依赖的职责
 
 依赖各司其职：
 
@@ -226,6 +209,8 @@ libc = "0.2"                                   # evdev 直读（随 keymon 迁�
 **`unsafe_textures` feature**：sdl2 crate 的 `Texture` 默认带生命周期参数（`Texture<'r>`），直接作为结构体字段会有生命周期纠缠——启用该 feature 去掉生命周期，使纹理可安全存储在 `Tg5040` 结构体中。
 
 **`png` 依赖说明**：show 是平台自治 bin（独立 crate `platform-tg5040-show`）——不复用 render，自实现图片解码，因此 show crate 依赖 `png`。这**不违反**"平台不依赖 render"的依赖方向约束（render 是上层 crate，png 是纯第三方解码库；`cargo tree -p platform-tg5040` 中 render 仍不出现）。C 原版各平台 show.c 同样自治用 SDL_image 加载 PNG。
+
+**声明位置**：本节全部依赖（内部 path 与第三方）集中声明于根 `[workspace.dependencies]`，本 crate 与 show/keymon 的清单只写 `workspace = true`——版本、features、path 单一来源（见 architecture.md §5.1 与 §6 决策记录）。依赖 key 恒为包名 `platform-tg5040`（**不使用 rename**）：上层写 `platform-tg5040 = { workspace = true, optional = true }` 并以 `--features platform-tg5040/<device>` 透传；show/keymon 写 `platform-tg5040 = { workspace = true }`、设备 feature 转发写作 `smart = ["platform-tg5040/smart"]`——全项目同一形态。
 
 ### 3.3 平台自治结构：纯 lib + show/keymon 独立 crate
 
@@ -280,7 +265,7 @@ keymon 需要读 Linux 内核输入设备（`/dev/input/event*`）。Rust 生态
 
 ### 4.3 编译期设备区分
 
-smart/brick 的差异（分辨率/按键映射/LED 路径）全部用 `#[cfg(feature = "smart")]` / `#[cfg(feature = "brick")]` **正向**编译期区分，**没有** C 原版的 `is_brick` 运行时变量，也**没有** `#[cfg(not(...))]` 负向逻辑。两个设备 feature 互斥且必选、**无默认**——`src/lib.rs` 顶部的两条 `compile_error!` 断言强制"恰好启用一个"（设备选择必须显式，未指定或同时指定两个都会编译报错）。结论：每个设备编译出独立二进制、独立安装包（第 12 章有完整推导）。构建命令示例：`cargo test -p platform-tg5040 --features smart`（或 `--features brick`）、`cargo build -p minui --features tg5040/brick --release`。
+smart/brick 的差异（分辨率/按键映射/LED 路径）全部用 `#[cfg(feature = "smart")]` / `#[cfg(feature = "brick")]` **正向**编译期区分，**没有** C 原版的 `is_brick` 运行时变量，也**没有** `#[cfg(not(...))]` 负向逻辑。两个设备 feature 互斥且必选、**无默认**——`src/lib.rs` 顶部的两条 `compile_error!` 断言强制"恰好启用一个"（设备选择必须显式，未指定或同时指定两个都会编译报错）。结论：每个设备编译出独立二进制、独立安装包（第 12 章有完整推导）。构建命令示例：`cargo test -p platform-tg5040 --features smart`（或 `--features brick`）、`cargo build -p minui --features platform-tg5040/brick --release`。
 
 ### 4.4 RGB565 与 VideoBuffer
 
@@ -1206,7 +1191,7 @@ keymon 启动 mute 监控线程（`std::thread`，对应原版 `watchMute` pthre
 | `api.c` / `PLAT_*` | 平台抽象（视频/输入/音频/电源） | `Platform` trait（27 方法 + 24 关联常量） |
 | `libmsettings.so` | 系统设置（亮度/音量/静音/耳机） | 平台 crate 的 `settings` 模块 |
 
-亮度/音量**不属于平台抽象**，而是"系统设置"领域——所以 `Platform` trait 不承载设置读写，settings 是 trait 之外的**第二个接口面**。minui/minarch 读取设置值时，在 `#[cfg(feature = "tg5040")]` 下直接调用平台 crate 的 settings 函数——这与原版 minui.c 链接 libmsettings 直接调函数的行为完全一致。
+亮度/音量**不属于平台抽象**，而是"系统设置"领域——所以 `Platform` trait 不承载设置读写，settings 是 trait 之外的**第二个接口面**。minui/minarch 读取设置值时，在 `#[cfg(feature = "platform-tg5040")]` 下直接调用平台 crate 的 settings 函数——这与原版 minui.c 链接 libmsettings 直接调函数的行为完全一致。
 
 接口面收敛为两类（pub 面由 Rust 可见性强制，无运行时检查）：
 
@@ -1220,7 +1205,7 @@ keymon 启动 mute 监控线程（`std::thread`，对应原版 `watchMute` pthre
 
 ```rust
 // minui 显示音量条时（cfg 分支选择平台，与平台初始化代码同一模式）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 let volume = platform_tg5040::settings::SettingsHandle::init().volume();
 ```
 
@@ -1426,7 +1411,7 @@ const SCREEN_WIDTH: u32 = 1280;
 #### 12.4.3 编译流程
 
 ```
-cargo build -p minui --features tg5040/smart    cargo build -p minui --features tg5040/brick
+cargo build -p minui --features platform-tg5040/smart    cargo build -p minui --features platform-tg5040/brick
             │                                         │
             ▼                                         ▼
      smart 二进制（1280×720）                 brick 二进制（1024×768）
@@ -1687,8 +1672,8 @@ Rust 版平台子 xtask 的改进（相对 sh 脚本）：
 ```
 cargo xtask toolchain all --platform tg5040 --device smart:
   setup    （清空 build/ + 复制 skeleton + 删 .keep/*.meta + 写 build/hash.txt）
-  build     cargo build -p minui --features tg5040/smart --target aarch64-unknown-linux-gnu --release
-            cargo build -p minarch --features tg5040/smart --target aarch64-unknown-linux-gnu --release
+  build     cargo build -p minui --features platform-tg5040/smart --target aarch64-unknown-linux-gnu --release
+            cargo build -p minarch --features platform-tg5040/smart --target aarch64-unknown-linux-gnu --release
             cargo build -p clock/minput ...（通用 4 个；platform lib 作为依赖连带编译）
   system   （检测 4 个通用二进制完整性 + 复制 → build/SYSTEM/tg5040/bin/）
   platform  cargo run --quiet -p tg5040-xtask -- smart（平台子 xtask 全流程）

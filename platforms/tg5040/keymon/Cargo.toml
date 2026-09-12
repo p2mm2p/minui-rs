@@ -13,9 +13,9 @@ path = "src/main.rs"
 [dependencies]
 # 平台 lib：settings 模块（SettingsHandle——亮度/音量/静音/耳机设置）与
 # common 依赖经平台 lib 传递；evdev 模块随 keymon 迁入本 crate（src/evdev.rs）
-platform-tg5040 = { path = ".." }
+platform-tg5040 = { workspace = true }
 # libc：evdev 的 open/read/sigaction FFI 与 settings 的共享内存（经平台 lib）
-libc = "0.2"
+libc = { workspace = true }
 
 [features]
 # 设备变体 feature 透传（平台 feature 系统规范——见

@@ -17,7 +17,7 @@
 //! 平台 crate。方向单向无环：`common ← disc ← recents ← browser`。
 //!
 
-#![cfg_attr(not(feature = "tg5040"), allow(dead_code))] // 无平台 feature（测试编译）时保留 allow
+#![cfg_attr(not(feature = "platform-tg5040"), allow(dead_code))] // 无平台 feature（测试编译）时保留 allow
 
 use std::collections::HashMap;
 

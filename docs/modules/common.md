@@ -320,7 +320,7 @@ RGB565 16 位布局：
 | `SUPPORTS_OVERSCAN`   | `bool` | 是否支持过扫描区域                                       | false    |
 | `DEVICE_MODEL`        | `&str` | 设备型号名称（编译期确定）                                  | "TrimUI Smart Pro" |
 | `SDCARD_PATH`         | `&str` | SD 卡挂载根路径                                           | "/mnt/SDCARD" |
-| `PLATFORM`            | `&str` | 平台代码（`.system/{code}` 目录名、依赖 key 三位一体）        | "tg5040" |
+| `PLATFORM`            | `&str` | 平台代码（`.system/{code}` 与 `platforms/{code}` 目录名、xtask `--platform` 参数） | "tg5040" |
 | `BTN_SLEEP`           | `u32`  | 睡眠键位（前端与 keymon 协调的语义键）                       | BTN_POWER |
 | `BTN_MOD_BRIGHTNESS`  | `u32`  | 亮度修饰键（语义键，同下）                                  | BTN_MENU |
 | `BTN_MOD_VOLUME`      | `u32`  | 音量修饰键                                                | BTN_NONE |
@@ -512,7 +512,7 @@ PWR_update 依赖:            PWR_fauxSleep 依赖:
 ```rust
 fn main() {
     // 平台实例——只在 main.rs 中创建一次
-    #[cfg(feature = "tg5040")]
+    #[cfg(feature = "platform-tg5040")]
     let mut platform = platform_tg5040::Tg5040::new();
 
     run(&mut platform);

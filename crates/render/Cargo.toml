@@ -4,6 +4,6 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-common = { path = "../common" }
-fontdue = "0.9.2"
-png = "0.17"
+common = { workspace = true }
+fontdue = { workspace = true }
+png = { workspace = true }

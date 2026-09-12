@@ -4,16 +4,12 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-common = { path = "../../crates/common" }
-# unsafe_textures：去掉 Texture<'r> 生命周期参数，使 SDL 纹理可作为结构体字段
-# （生命周期纠缠的替代方案是结构体带生命周期泛型，会传染所有使用处——更复杂）
-sdl2 = { version = "0.36", features = ["unsafe_textures"] }
-# 启用 sdl2-sys 的 use-pkgconfig：让 build 脚本通过 pkg-config 输出 -L 链接搜索路径
-# （sdl2-sys 默认 features 为空，不启用则 macOS 上找不到 Homebrew 的 SDL2）
-sdl2-sys = { version = "0.36", features = ["use-pkgconfig"] }
+common = { workspace = true }
+sdl2 = { workspace = true }
+sdl2-sys = { workspace = true }
 # libc：settings 模块的 shm_open/mmap/ioctl 与 power 的 FFI 绑定
 # （libmsettings 的 Rust 版所需——纯 Rust 绑定，无 C 工具链依赖）
-libc = "0.2"
+libc = { workspace = true }
 
 # 注：本 crate 为纯 lib（无 [[bin]]）——show/keymon 已拆为独立 crate
 # （platform-tg5040-show / platform-tg5040-keymon），png 依赖随 show 迁出。
@@ -24,6 +20,6 @@ libc = "0.2"
 # 未指定设备或同时指定两个时，由 src/lib.rs 顶部的 compile_error! 断言在编译期报错。
 # 设备差异（分辨率/布局/输入映射/LED）全部由 #[cfg(feature = ...)] 编译期处理，
 # 与 C 原版的运行时 getenv("DEVICE") 检测不同——详见 README「设备区分机制」章节。
-# 上层透传：minui/minarch 用 `--features tg5040/smart|brick`（xtask 已显式传设备参数）。
+# 上层透传：minui/minarch 用 `--features platform-tg5040/smart|brick`（xtask 已显式传设备参数）。
 smart = []
 brick = []

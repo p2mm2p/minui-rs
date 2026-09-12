@@ -20,7 +20,7 @@
 //!
 //! 按键语义键（`BTN_SLEEP`/`BTN_MOD_*`）经 `Platform` trait 关联常量
 //! 获取；`BTN_RESUME` 为 main 本地常量；系统设置（`SettingsHandle`）
-//! 经 `#[cfg(feature = "tg5040")]` 引用平台 crate——对应 C 的
+//! 经 `#[cfg(feature = "platform-tg5040")]` 引用平台 crate——对应 C 的
 //! `platform.h` 宏 + `libmsettings`（tg5040 README「第二接口面」模式）。
 //! 业务模块（menu/ui）经参数接收平台值，保持平台无关。
 //!
@@ -35,58 +35,58 @@ mod test_util;
 mod ui;
 mod version;
 
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use common::input::{
     BTN_A, BTN_B, BTN_DPAD_DOWN, BTN_DPAD_LEFT, BTN_DPAD_RIGHT, BTN_DPAD_UP, BTN_L1, BTN_R1, BTN_X,
     MenuTapState, ModKeys, tapped_menu,
 };
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use common::paths::{get_auto_resume_path, get_res_path, get_version_txt_path};
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use common::platform::Platform;
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use common::power::{CpuSpeed, PowerAction, PowerState, faux_sleep, power_off};
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use common::utils::{exists, get_file};
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use common::video::{FONT_PATH, RGB_BLACK, Rect, VideoBuffer};
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use menu::{Menu, ScrollDir};
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use render::asset::load_atlas;
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use render::hardware::{HardwareStatus, blit_hardware_group};
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use render::text::{blit_message, load_font};
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use std::time::Duration;
 
 // ── 平台特化区（spec「平台特化引用」——语义键经 Platform trait 关联
 // 常量；平台 crate 引用仅剩 SettingsHandle 与 Tg5040 实例化）──
 
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 // 续玩键：tg5040 为 X（C platform.h:110 `#define BTN_RESUME BTN_X`）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 const BTN_RESUME: u32 = BTN_X;
-#[cfg(feature = "tg5040")]
-use tg5040::settings::SettingsHandle;
+#[cfg(feature = "platform-tg5040")]
+use platform_tg5040::settings::SettingsHandle;
 
 /// 帧预算（毫秒）——对应 C `FRAME_BUDGET 17`（api.c:204，60fps）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 const FRAME_BUDGET: u32 = 17;
 
 /// 版本页字号（对应 C `FONT_LARGE`，defines.h:66）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 const FONT_LARGE: u32 = 16;
 
 fn main() {
-    #[cfg(feature = "tg5040")]
+    #[cfg(feature = "platform-tg5040")]
     {
-        let mut platform = tg5040::Tg5040::new();
+        let mut platform = platform_tg5040::Tg5040::new();
         run(&mut platform);
     }
     // 无平台 feature（如单元测试编译）时保持占位输出
-    #[cfg(not(feature = "tg5040"))]
+    #[cfg(not(feature = "platform-tg5040"))]
     {
         println!("minui launcher - no platform feature selected");
     }
@@ -103,7 +103,7 @@ fn main() {
 /// # 参数
 ///
 /// - `platform`:平台实例（`Platform` trait 实现，如 `Tg5040`）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 fn run<P: Platform>(platform: &mut P) {
     let sdcard_path = P::SDCARD_PATH;
     let platform_code = P::PLATFORM;

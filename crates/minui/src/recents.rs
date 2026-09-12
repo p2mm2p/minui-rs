@@ -18,7 +18,7 @@
 //! 变更），模拟器重装后条目自动恢复显示。
 //!
 
-#![cfg_attr(not(feature = "tg5040"), allow(dead_code))] // 无平台 feature（测试编译）时保留 allow
+#![cfg_attr(not(feature = "platform-tg5040"), allow(dead_code))] // 无平台 feature（测试编译）时保留 allow
 
 use common::paths::{CHANGE_DISC_PATH, get_recent_path, get_roms_path};
 use common::utils::{exists, get_emu_name, get_file, prefix_match, put_file, remove_file};
