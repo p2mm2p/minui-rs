@@ -18,7 +18,7 @@
 //! 使 name 后露出的 unique 后缀呈现深灰）。
 //!
 
-#![cfg_attr(not(feature = "tg5040"), allow(dead_code))] // 无平台 feature（测试编译）时保留 allow
+#![cfg_attr(not(feature = "platform-tg5040"), allow(dead_code))] // 无平台 feature（测试编译）时保留 allow
 //!
 //! 「ui 列表渲染」
 

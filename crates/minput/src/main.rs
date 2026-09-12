@@ -14,44 +14,44 @@
 
 mod layout;
 
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use common::input::{BTN_SELECT, BTN_START};
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use common::paths::get_res_path;
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use common::platform::Platform;
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use common::power::CpuSpeed;
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use common::video::{
     ASSET_RGBS, Asset, FONT_PATH, FRAME_BUDGET_MS, RGB_BLACK, RGB_DARK_GRAY, Rect, VideoBuffer,
 };
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use layout::{Capabilities, layout_background, layout_buttons};
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use render::asset::load_atlas;
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use render::pill::blit_pill;
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use render::text::{load_font, render_text, size_text};
 
 /// 按钮标签字号（对应 C `font.medium`/`font.small`/`font.tiny`，
 /// defines.h:67-69——单字符 14、短标签 12、多字符 10）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 const FONT_SINGLE_CHAR: u32 = 14;
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 const FONT_SHORT_LABEL: u32 = 12;
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 const FONT_MULTI_CHAR: u32 = 10;
 
 fn main() {
-    #[cfg(feature = "tg5040")]
+    #[cfg(feature = "platform-tg5040")]
     {
-        let mut platform = tg5040::Tg5040::new();
+        let mut platform = platform_tg5040::Tg5040::new();
         run(&mut platform);
     }
     // 无平台 feature（如单元测试编译）时保持占位输出
-    #[cfg(not(feature = "tg5040"))]
+    #[cfg(not(feature = "platform-tg5040"))]
     {
         println!("minput - no platform feature selected");
     }
@@ -68,7 +68,7 @@ fn main() {
 /// # 参数
 ///
 /// - `platform`:平台实例（`Platform` trait 实现，如 `Tg5040`）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 fn run<P: Platform>(platform: &mut P) {
     let sdcard_path = P::SDCARD_PATH;
     let scale = P::SCALE;
@@ -243,7 +243,7 @@ fn run<P: Platform>(platform: &mut P) {
 ///
 /// - `label`：按钮标签
 /// - `scale`：平台缩放倍率
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 fn label_font_px(label: &str, scale: u32) -> u32 {
     let n = label.chars().count();
     let px = if n == 1 {
@@ -258,5 +258,5 @@ fn label_font_px(label: &str, scale: u32) -> u32 {
 
 /// 按钮素材的未缩放边长（对应 `common::video::BUTTON_SIZE`，局部别名
 /// 避免在绘制段重复书写 `common::video::BUTTON_SIZE`）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 const BUTTON_SIZE_S: u32 = common::video::BUTTON_SIZE;

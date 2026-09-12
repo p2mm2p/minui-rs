@@ -20,7 +20,7 @@
 //! 依赖方向单向：`menu → launch`（launch 不知 menu 存在）。
 //!
 
-#![cfg_attr(not(feature = "tg5040"), allow(dead_code))] // 无平台 feature（测试编译）时保留 allow
+#![cfg_attr(not(feature = "platform-tg5040"), allow(dead_code))] // 无平台 feature（测试编译）时保留 allow
 //!
 //! 「menu 导航状态机」
 

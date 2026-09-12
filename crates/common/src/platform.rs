@@ -83,9 +83,11 @@ pub trait Platform {
     const SDCARD_PATH: &str;
     /// 平台代码（如 `"tg5040"`，对应 C makefile 的 `PLATFORM` 变量）
     ///
-    /// 值 SHALL 与平台 feature 系统规范一致（平台代码 = dep key = feature
-    /// 名三位一体，见 `workspace-structure` spec「平台 feature 系统规范」），
-    /// 用于 `.system/{code}` 等目录名与路径拼接。
+    /// 平台代码是**运行期与文件系统的唯一标识**：`.system/{code}`、
+    /// `.userdata/{code}`、`Tools/{code}`、`platforms/{code}` 目录与 xtask
+    /// `--platform` 参数均用本值——即 `.system/tg5040`、`skeleton/SYSTEM/tg5040`，
+    /// **不带 `platform-` 前缀**。cargo 的依赖标识（dep key / feature 名）另用
+    /// 包名 `platform-{code}`，只参与编译期解析，**不参与任何路径拼接**。
     const PLATFORM: &str;
 
     // ── 设备语义键（对应 C 各平台 platform.h 的 BTN_SLEEP/BTN_MOD_* 宏）──

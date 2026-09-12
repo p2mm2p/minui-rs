@@ -8,7 +8,7 @@
 /// 直接调用系统 `cc -shared -fPIC`（`std::process::Command`），不引入构建依赖：
 /// `cc` crate 只产静态库（`shared_flag` 已弃用为 no-op），而 libloading
 /// 需要动态库——见 design.md 决策 6。产物写入 `CARGO_TARGET_TMPDIR`，
-/// 不参与 `cargo build --features tg5040/smart` 的设备构建。
+/// 不参与 `cargo build --features platform-tg5040/smart` 的设备构建。
 use std::path::PathBuf;
 
 /// 主机端 mock 核心动态库的文件名（macOS 为 `.dylib`，Linux 为 `.so`）

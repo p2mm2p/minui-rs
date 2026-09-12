@@ -260,20 +260,14 @@ C 原版 `make clean` 就是一行 `rm -rf ./build`（`MinUI/makefile:88-89`）�
 
 ## 3. 依赖关系
 
-### 3.1 Cargo.toml 全文
+### 3.1 依赖面（仅 clap）
 
-```toml
-[package]
-name = "xtask"
-version.workspace = true
-edition.workspace = true
+```
+xtask（构建工具）
+  └── clap + derive —— 唯一依赖；版本与 features 声明于根 [workspace.dependencies]
 
-[[bin]]
-name = "xtask"
-path = "src/main.rs"
-
-[dependencies]
-clap = { version = "4", features = ["derive"] }
+主项目 crate（common / render / minui / minarch / clock / minput / platform-tg5040）
+  └── 与 xtask 无依赖关系（`cargo tree -p xtask` 不含任何项目 crate）
 ```
 
 **xtask 的依赖面 = 只有 clap**。`cargo tree -p xtask` 的依赖树不包含 common/render/minui/minarch/platform-tg5040 任何项目 crate——xtask 是**独立于主项目**的工具。
@@ -309,7 +303,7 @@ toolchain 的 8 个子命令分两类——**是否处理平台特定内容**：
 
 ```
 --device smart/brick
-   ├── toolchain build    → 决定编译 feature（--features tg5040/smart）
+   ├── toolchain build    → 决定编译 feature（--features platform-tg5040/smart）
    ├── toolchain platform → 透传给平台子 xtask（决定 show 分辨率/安装图来源）
    └── doc/test/lint      → 与 --platform 成对必填，连带检查该平台
 ```
@@ -434,7 +428,7 @@ xtask/
 │   build/ = skeleton 完整副本 + hash.txt                             │
 ├────────────────────────────────────────────────────────────────────┤
 │ [build]   cargo build -p minui/minarch/clock/minput                 │
-│           （--features tg5040/smart + --target aarch64-... + --release）│
+│           （--features platform-tg5040/smart + --target aarch64-... + --release）│
 │   不动 build/——产物在 target/aarch64-unknown-linux-gnu/release/     │
 │   （platform lib 作为 minui/minarch 的依赖被连带编译；show/keymon   │
 │     不在此——平台自治，由 platform 步骤的平台子 xtask 编译）          │
@@ -484,7 +478,7 @@ xtask/
 ```
 minarch 源码（crates/minarch/）
     │
-    ▼ [build] cargo build -p minarch --features tg5040/smart
+    ▼ [build] cargo build -p minarch --features platform-tg5040/smart
     │         --target aarch64-unknown-linux-gnu --release
 target/aarch64-unknown-linux-gnu/release/minarch     ← cargo 产物（无 .elf）
     │
@@ -664,7 +658,7 @@ fn build_commands(platform: &str, device: &str) -> Vec<(&'static str, Vec<String
     let mut cmds = Vec::new();
 
     for pkg in ["minui", "minarch", "clock", "minput"] {
-        let feature_flag = format!("{platform}/{device}");
+        let feature_flag = format!("platform-{platform}/{device}");
         // 每个平台都有确定的交叉 target——恒带 --target
         let args = vec![
             "build".to_string(),
@@ -686,18 +680,18 @@ fn build_commands(platform: &str, device: &str) -> Vec<(&'static str, Vec<String
 
 ```
 podman run --rm -v <workspace>:/workspace -w /workspace minui-toolchain:latest \
-    cargo build -p minui   --features tg5040/brick --target aarch64-unknown-linux-gnu --release
+    cargo build -p minui   --features platform-tg5040/brick --target aarch64-unknown-linux-gnu --release
 podman run --rm -v <workspace>:/workspace -w /workspace minui-toolchain:latest \
-    cargo build -p minarch --features tg5040/brick --target aarch64-unknown-linux-gnu --release
+    cargo build -p minarch --features platform-tg5040/brick --target aarch64-unknown-linux-gnu --release
 podman run --rm -v <workspace>:/workspace -w /workspace minui-toolchain:latest \
-    cargo build -p clock   --features tg5040/brick --target aarch64-unknown-linux-gnu --release
+    cargo build -p clock   --features platform-tg5040/brick --target aarch64-unknown-linux-gnu --release
 podman run --rm -v <workspace>:/workspace -w /workspace minui-toolchain:latest \
-    cargo build -p minput  --features tg5040/brick --target aarch64-unknown-linux-gnu --release
+    cargo build -p minput  --features platform-tg5040/brick --target aarch64-unknown-linux-gnu --release
 ```
 
 **feature 传递是新手最容易踩的坑**：
 
-- 四个 crate 均用 **`tg5040/<device>`**：minui 等 crate 的 Cargo.toml 里 `tg5040` feature 启用 `dep:platform-tg5040`——`/device` 语法是 Cargo 的 **feature 透传**（把 `brick` 传给依赖 crate platform-tg5040）。平台 lib 作为依赖被连带编译，**无需单独 `-p platform-tg5040`**——show/keymon 已拆为独立 crate（平台自治），不在此编译
+- 四个 crate 均用 **`platform-tg5040/<device>`**：minui 等 crate 的 Cargo.toml 里 `platform-tg5040` feature 启用 `dep:platform-tg5040`——`/device` 语法是 Cargo 的 **feature 透传**（把 `brick` 传给依赖 crate platform-tg5040）。平台 lib 作为依赖被连带编译，**无需单独 `-p platform-tg5040`**——show/keymon 已拆为独立 crate（平台自治），不在此编译
 
 **为什么固定 `--release`？** 产物是发布包——编译 debug 无意义。**为什么编译必然经容器？** 真机目标是 ARM Linux——容器本机即目标架构（arm64 容器），cargo build 直接产出 AArch64；宿主机无需 ARM linker/SDL2（见 8.3）。
 

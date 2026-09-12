@@ -17,71 +17,71 @@
 //! 电源状态机 → HDMI 检测 → 帧预算补偿。菜单打开时转入菜单子循环。
 //!
 
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use std::path::Path;
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use std::time::Duration;
 
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use common::input::{
     BTN_A, BTN_B, BTN_DPAD_DOWN, BTN_DPAD_LEFT, BTN_DPAD_RIGHT, BTN_DPAD_UP, BTN_MENU, BTN_POWER,
     BTN_X, ModKeys,
 };
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use common::paths::{
     AUTO_RESUME_SLOT, get_auto_resume_path, get_paks_path, get_roms_path, get_shared_userdata_path,
     get_userdata_path,
 };
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use common::platform::Platform;
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use common::power::{CpuSpeed, PowerAction, PowerState, faux_sleep, power_off};
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use common::utils::{exists, get_emu_name, get_emu_path};
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use common::video::{FONT_PATH, RGB_BLACK, VideoBuffer, VsyncMode};
 
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use minarch::assembly::{load_state, read_resume_slot, save_state};
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use minarch::audio;
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use minarch::config::{self, OptionList};
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use minarch::controls::{self, ShortcutAction, ShortcutState};
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use minarch::core::{self, CoreSession, Scaling};
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use minarch::environment;
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use minarch::game::Game;
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use minarch::hdmi::HdmiMonitor;
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use minarch::libretro::{self, Core, FrontendState};
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use minarch::menu::{self, MainAction, MainMenu, MenuInput, OptionMenu, SaveStateIo};
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use minarch::vibration;
 
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use render::asset::load_atlas;
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 use render::text::load_font;
 
 /// 帧预算（ms），对应 C `FRAME_BUDGET`（60fps）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 const FRAME_BUDGET: u32 = 17;
 /// 菜单可见行数（对应 C `max_visible_options`）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 const MENU_VISIBLE_ROWS: usize = 7;
 /// 音频输出缓冲帧数（装配层提供，drain 目标）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 const AUDIO_BUFFER_FRAMES: usize = 1024;
 
 /// 跨帧运行状态（装配层局部变量收拢，对应 C 全局 `quit`/`show_menu`
 /// 等，minarch.c:24-36）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 struct RunState {
     /// 是否退出主循环
     quit: bool,
@@ -103,7 +103,7 @@ struct RunState {
     should_run_core: std::sync::Arc<std::sync::atomic::AtomicBool>,
 }
 
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 impl RunState {
     fn new() -> Self {
         Self {
@@ -121,13 +121,13 @@ impl RunState {
 }
 
 fn main() {
-    #[cfg(feature = "tg5040")]
+    #[cfg(feature = "platform-tg5040")]
     {
-        let mut platform = tg5040::Tg5040::new();
+        let mut platform = platform_tg5040::Tg5040::new();
         run(&mut platform);
     }
     // 无平台 feature（如单元测试编译）时保持占位输出
-    #[cfg(not(feature = "tg5040"))]
+    #[cfg(not(feature = "platform-tg5040"))]
     {
         println!("minarch frontend - no platform feature selected");
     }
@@ -138,7 +138,7 @@ fn main() {
 /// # 参数
 ///
 /// - `platform`: 平台实例（`Platform` trait 实现）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 fn run<P: Platform>(platform: &mut P) {
     let sdcard_path = P::SDCARD_PATH;
     let platform_code = P::PLATFORM;
@@ -672,7 +672,7 @@ fn run<P: Platform>(platform: &mut P) {
 
 /// 生成半透明遮罩（对应 C `menu.overlay`，minarch.c:3062-3064 的
 /// 半透明黑层——简化：0x39 暗化，与 C 的 alpha 混合等价）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 fn make_overlay(w: u32, h: u32) -> VideoBuffer {
     let mut overlay = VideoBuffer::new(w, h);
     // 半透明黑：RGB565 下 0x39E7 ≈ 25% 亮度的灰（C 用 SDL 半透明混合，
@@ -684,7 +684,7 @@ fn make_overlay(w: u32, h: u32) -> VideoBuffer {
 }
 
 /// 睡眠前序列（对应 C `Menu_beforeSleep`，minarch.c:3112-3119）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 fn before_sleep<P: Platform>(
     session: &CoreSession,
     core: &Core,
@@ -703,7 +703,7 @@ fn before_sleep<P: Platform>(
 }
 
 /// 唤醒后序列（对应 C `Menu_afterSleep`，minarch.c:3120-3124）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 fn after_sleep<P: Platform>(platform: &mut P, cpu_speed: CpuSpeed, run_state: &mut RunState) {
     let sdcard_path = P::SDCARD_PATH;
     let _ = std::fs::remove_file(get_auto_resume_path(sdcard_path));
@@ -713,7 +713,7 @@ fn after_sleep<P: Platform>(platform: &mut P, cpu_speed: CpuSpeed, run_state: &m
 
 /// 快捷指令动作消费（对应 C :1683-1734 的 switch）
 #[allow(clippy::too_many_arguments)]
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 fn handle_shortcut(
     action: ShortcutAction,
     run_state: &mut RunState,
@@ -791,7 +791,7 @@ fn handle_shortcut(
 }
 
 /// Scaling 枚举 → 选项表值字符串（与 `frontend_options` 的 labels 一致）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 fn scaling_label(scaling: Scaling) -> &'static str {
     match scaling {
         Scaling::Native => "Native",
@@ -803,7 +803,7 @@ fn scaling_label(scaling: Scaling) -> &'static str {
 
 /// 菜单子循环（对应 C `Menu_loop`，minarch.c:4224-4572）
 #[allow(clippy::too_many_arguments)]
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 fn menu_loop<P: Platform>(
     platform: &mut P,
     run_state: &mut RunState,
@@ -1015,7 +1015,7 @@ fn menu_loop<P: Platform>(
 }
 
 /// 前端选项 → 平台/核心联动（对应 C `Config_syncFrontend`，minarch.c:1158-1190）
-#[cfg(feature = "tg5040")]
+#[cfg(feature = "platform-tg5040")]
 fn sync_frontend_from_option<P: Platform>(
     platform: &mut P,
     run_state: &mut RunState,

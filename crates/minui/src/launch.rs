@@ -20,7 +20,7 @@
 //! 本模块只提供显式参数接口。
 //!
 
-#![cfg_attr(not(feature = "tg5040"), allow(dead_code))] // 无平台 feature（测试编译）时保留 allow
+#![cfg_attr(not(feature = "platform-tg5040"), allow(dead_code))] // 无平台 feature（测试编译）时保留 allow
 
 use common::paths::{
     AUTO_RESUME_SLOT, RESUME_SLOT_PATH, get_auto_resume_path, get_faux_recent_path, get_roms_path,

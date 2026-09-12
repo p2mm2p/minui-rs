@@ -70,7 +70,7 @@ minui-rs/
     (无第三方)  (libloading+flate2)    (libc)      (无第三方)
       └───────────────┴───────────────┴───────────────┘
        四者均直接依赖 common + render + platform；platform 为
-       可选依赖，经 `--features tg5040/<device>` 透传
+       可选依赖，经 `--features platform-tg5040/<device>` 透传
 
 platforms/tg5040（平台 lib，纯 lib——无 bin）
   └── sdl2 + sdl2-sys + libc（show/keymon 拆为独立 crate：show 依赖平台 lib/common/png，
@@ -125,16 +125,18 @@ fn run<P: Platform>(platform: &mut P) {
 
 ### 5.1 依赖声明纪律
 
-- `workspace.dependencies` 保持为空——各 crate 独立声明自己的依赖（依赖面显式、可审计）
+- **全部依赖集中声明于根 `[workspace.dependencies]`**——内部 path 依赖与第三方依赖皆然；`path` 相对根解析，版本与 features 唯一来源。成员清单只写 `workspace = true`（外加"本 crate 为何用它"的注释），根表即**全项目依赖清单**（可审计）
+- 成员**不得**再写版本号 / `path` / `features`——写 `path` 会被 Cargo **静默忽略**（无警告、无提示），残留的 `path` 是一句不会被检出的谎言
+- 两条继承约束（Cargo 语言语义，非本仓库约定）：**不使用 `package` rename**——平台依赖 key 一律 = 包名 `platform-<code>`（rename 只能声明于根表，而此处无必要）；`optional` **不可**继承，必须留在成员——`platform-tg5040 = { workspace = true, optional = true }` 是唯一合法形态
+- 根表的 `features` 对**所有**继承者生效（feature 叠加，成员无法退出）——单一 crate 专用的 feature 也一并写在根表（`unsafe_textures` / `use-pkgconfig` / `derive`）；未来若某成员需要不同组合，须在该成员改用显式声明脱离继承，并在根表注明原因
 - workspace `resolver = "2"`、`edition = "2024"`
-- 第三方依赖声明于使用它的 crate，不提升到 workspace 级
 
-### 5.2 平台 feature 系统（三位一体）
+### 5.2 平台 feature 系统（平台代码 → 包名 `platform-<code>`）
 
-**平台代码 = `PLATFORM` 常量 = `.system/{code}` 目录名 = 依赖 key = feature 名**——同一标识贯穿五处，是平台接入的锚点：
+**平台代码 = `PLATFORM` 常量值 = `.system/{code}` 目录名 = `platforms/{code}` 目录名 = xtask 的 `--platform` 参数**——平台代码是目录与运行期标识的锚点；**依赖 key / feature 名恒为包名 `platform-<code>`**（由平台代码加前缀派生，不使用 rename）：
 
 - 平台 crate（如 `platform-tg5040`）的设备 feature（`smart`/`brick`）**互斥且必选、无默认**——未指定设备或同时指定两个时编译期报错（`compile_error!` 断言）
-- 上层 crate 以 `--features <平台代码>/<device>` 透传（依赖 key = 平台代码，经 `package = "platform-<code>"` rename 映射到平台 crate）
+- 上层 crate 以 `--features platform-<code>/<device>` 透传（依赖 key = 包名，无 rename；path 声明于根 `[workspace.dependencies]`，成员只写 `platform-tg5040 = { workspace = true, optional = true }`）
 - 条件全部**正向** `#[cfg(feature = "...")]`——禁止 `#[cfg(not(...))]` 负向逻辑（负向在叠加 feature 与第三设备场景下不可读/不可扩展）
 - 新增设备须同步更新平台 crate 顶部两条 compile_error 断言（any/all）
 
@@ -183,3 +185,10 @@ fn run<P: Platform>(platform: &mut P) {
 - **为什么**：Rust 关联常量不能引用其他关联常量（E0401）——派生必须函数化；"谁使用谁定义 + 跨进程共享才进 common"。
 - **被否决**：常量全做函数（无派生逻辑的伪抽象）；单建 consts 模块（3 个常量不配新模块）。
 - **产生的问题**：跨 crate 共享路径时先确认消费方数量（双模块引用才进 common 原则）。
+
+### 决策：依赖声明全部集中到根 `[workspace.dependencies]`
+
+- **结论**：内部 path 依赖 + 全部第三方依赖（8 个唯一 crate）集中声明于根 `[workspace.dependencies]`（含平台自治 bin show/keymon）；平台依赖 key 一律用包名 `platform-<code>`（**不用 rename**，`--features platform-tg5040/<device>` 直白可读）；成员清单只剩 `workspace = true` 与"本 crate 为何用它"的注释。
+- **为什么**：`common` 曾在 7 处、以三种相对深度声明（`../common` / `../../crates/common` / `../../../crates/common`），平台依赖的 path 与 rename 写法各重复 4 份，第三方版本串散落 12 处——crate 搬迁或升版要逐文件改。集中后根表即全项目依赖清单：一处看全版本、features 与原因注释，"可审计"从"逐 crate 可见"变为"一处可见全部"；成员清单退化为纯结构，依赖方向仍一眼可见（key 名不变）。
+- **被否决**（两轮）：`workspace.dependencies` 保持全空（原 §5.1 措辞——三种拼写、4 份 rename、12 处版本串就是它的代价）；只集中 path 依赖、第三方逐 crate 声明（两套纪律并存，成员里"写版本还是写继承"要靠记忆——该中间态已实测通过，随后被推翻）；show/keymon 保留就地 `path = ".."`（会成为全项目唯一的非继承声明）；把平台依赖 key rename 成平台代码（`tg5040 = { package = "platform-tg5040", … }`——多一层间接，`--features tg5040/<device>` 不如包名直白，且徒增"rename 只能写在根表"这类约束）。
+- **产生的问题**：① 成员侧再写 `path` 会被 Cargo **静默忽略**（无警告），靠纪律维持；② 根表 `features` 对全部继承者生效——单一 crate 专用的 feature（`unsafe_textures` / `use-pkgconfig`）也被全局化，成员无法退出；③ `optional` 不可继承，仍由成员声明。

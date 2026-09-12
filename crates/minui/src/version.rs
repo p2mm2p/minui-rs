@@ -15,7 +15,7 @@
 //! `render::text`，不依赖 minui 的任何业务模块。
 //!
 
-#![cfg_attr(not(feature = "tg5040"), allow(dead_code))] // 无平台 feature（测试编译）时保留 allow
+#![cfg_attr(not(feature = "platform-tg5040"), allow(dead_code))] // 无平台 feature（测试编译）时保留 allow
 
 use common::video::{RGB_DARK_TEXT, RGB_WHITE};
 use render::text::{Font, render_text, size_text};

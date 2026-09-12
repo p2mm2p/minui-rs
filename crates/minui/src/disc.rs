@@ -16,7 +16,7 @@
 //! 语义独立（设置 `game.m3u_path` vs 本模块的多碟判断），不共享。
 //!
 
-#![cfg_attr(not(feature = "tg5040"), allow(dead_code))] // 无平台 feature（测试编译）时保留 allow
+#![cfg_attr(not(feature = "platform-tg5040"), allow(dead_code))] // 无平台 feature（测试编译）时保留 allow
 
 use common::utils::exists;
 

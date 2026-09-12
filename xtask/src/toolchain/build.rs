@@ -14,9 +14,9 @@
 //! 工具链（项目不做开发环境适配）。
 //!
 //! feature 传递（平台 feature 系统规范——见
-//! minput 均用 `--features <platform>/<device>`（依赖 key = 平台代码，经
-//! `package = "platform-<code>"` rename 映射到平台 crate，`dep/feat`
-//! 语法生效——平台 lib 作为依赖被连带编译，无需单独 `-p`）。
+//! minput 均用 `--features <platform>/<device>`（依赖 key = 包名
+//! `platform-<code>`，无 rename，`dep/feat` 语法生效——平台 lib 作为依赖
+//! 被连带编译，无需单独 `-p`）。
 //! 设备 feature 必选且无默认（compile_error 断言强制），xtask 的
 //! `--device` 参数必填。
 //!
@@ -92,11 +92,11 @@ fn validate_platform_target(platform: &str) -> Result<(), String> {
 /// 通用工具但需实例化平台）。平台 lib（`platform-<platform>`）不单独编译
 /// ——show/keymon 已拆为独立 crate（平台自治，由平台子 xtask 编译），
 /// 平台 lib 作为 minui/minarch 的依赖被连带编译（编译 minui 时经
-/// `--features tg5040/<device>` 拉入）。
+/// `--features platform-tg5040/<device>` 拉入）。
 ///
 /// # 参数
 ///
-/// - `platform`：目标平台（如 `tg5040`，同时也是上层依赖 key 与平台 crate 名后缀）
+/// - `platform`：目标平台（如 `tg5040`，同时也是上层依赖 key（platform-<code>）与平台 crate 名后缀）
 /// - `device`：设备参数（如 `smart`/`brick`）
 ///
 /// # 返回值
@@ -107,7 +107,7 @@ fn build_commands(platform: &str, device: &str) -> Vec<(&'static str, Vec<String
     let mut cmds = Vec::new();
 
     for pkg in ["minui", "minarch", "clock", "minput"] {
-        let feature_flag = format!("{platform}/{device}");
+        let feature_flag = format!("platform-{platform}/{device}");
         // 每个平台都有确定的交叉 target——恒带 --target
         let args = vec![
             "build".to_string(),
@@ -197,12 +197,15 @@ mod tests {
             4,
             "通用二进制 4 条（minui/minarch/clock/minput）"
         );
-        // minui：--features tg5040/brick + --target aarch64 + --release
+        // minui：--features platform-tg5040/brick + --target aarch64 + --release
         let (program, args) = &cmds[0];
         assert_eq!(program, &"cargo");
         let joined = args.join(" ");
         assert!(joined.contains("build -p minui"), "{joined}");
-        assert!(joined.contains("--features tg5040/brick"), "{joined}");
+        assert!(
+            joined.contains("--features platform-tg5040/brick"),
+            "{joined}"
+        );
         assert!(
             joined.contains("--target aarch64-unknown-linux-gnu"),
             "{joined}"
@@ -212,22 +215,31 @@ mod tests {
         let (_, args) = &cmds[1];
         let joined = args.join(" ");
         assert!(joined.contains("build -p minarch"), "{joined}");
-        assert!(joined.contains("--features tg5040/brick"), "{joined}");
-        // clock：--features tg5040/brick（与 minui 相同的透传）+ --target + --release
+        assert!(
+            joined.contains("--features platform-tg5040/brick"),
+            "{joined}"
+        );
+        // clock：--features platform-tg5040/brick（与 minui 相同的透传）+ --target + --release
         let (_, args) = &cmds[2];
         let joined = args.join(" ");
         assert!(joined.contains("build -p clock"), "{joined}");
-        assert!(joined.contains("--features tg5040/brick"), "{joined}");
+        assert!(
+            joined.contains("--features platform-tg5040/brick"),
+            "{joined}"
+        );
         assert!(
             joined.contains("--target aarch64-unknown-linux-gnu"),
             "{joined}"
         );
         assert!(joined.contains("--release"), "{joined}");
-        // minput：--features tg5040/brick（与 clock 相同的透传）+ --target + --release
+        // minput：--features platform-tg5040/brick（与 clock 相同的透传）+ --target + --release
         let (_, args) = &cmds[3];
         let joined = args.join(" ");
         assert!(joined.contains("build -p minput"), "{joined}");
-        assert!(joined.contains("--features tg5040/brick"), "{joined}");
+        assert!(
+            joined.contains("--features platform-tg5040/brick"),
+            "{joined}"
+        );
         assert!(
             joined.contains("--target aarch64-unknown-linux-gnu"),
             "{joined}"

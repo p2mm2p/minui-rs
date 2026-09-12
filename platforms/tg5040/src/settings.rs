@@ -17,7 +17,7 @@
 //!
 //! 亮度/音量**不属于平台抽象**（C 中不属于 `PLAT_*`，属于 libmsettings）——
 //! 本模块是 trait 之外的"第二个接口面"。minui/minarch 读取设置值时，
-//! 在 `#[cfg(feature = "tg5040")]` 下直接调用本模块函数（与原版 minui.c
+//! 在 `#[cfg(feature = "platform-tg5040")]` 下直接调用本模块函数（与原版 minui.c
 //! 链接 libmsettings 直接调函数的行为一致）。
 //!
 

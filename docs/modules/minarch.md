@@ -1063,7 +1063,7 @@ assert_eq!(event, OptionMenuEvent::Change(0)); // 值已修改，装配层执行
 
 前面每个模块都是"纯逻辑零件"：`config` 会解析 cfg 文本但不知道文件在哪，`core` 会算布局但不知道屏幕多大，`audio` 会重采样但不知道采样率多少。装配层就是把这些零件**接起来并驱动**的"总装车间"——对应原 C 版 4800 行单文件里 `main()`（minarch.c:4668-4829）干的所有事：启动、主循环、菜单、睡眠、退出。
 
-为什么拆成 `main.rs` + `assembly.rs` 两个文件？因为 `main.rs` 是 bin 目标且 `#[cfg(feature = "tg5040")]` 门控（需要平台 crate），**集成测试（无 feature 编译）链接不到它**。于是把可脱离平台测试的纯逻辑（存档编排、resume 解析）放进 lib 目标的 `assembly.rs`，`main.rs` 只留薄胶水——这延续了 minui 的"装配层不直接测试，可测逻辑下沉"模式。
+为什么拆成 `main.rs` + `assembly.rs` 两个文件？因为 `main.rs` 是 bin 目标且 `#[cfg(feature = "platform-tg5040")]` 门控（需要平台 crate），**集成测试（无 feature 编译）链接不到它**。于是把可脱离平台测试的纯逻辑（存档编排、resume 解析）放进 lib 目标的 `assembly.rs`，`main.rs` 只留薄胶水——这延续了 minui 的"装配层不直接测试，可测逻辑下沉"模式。
 
 #### 数据流/结构图
 
